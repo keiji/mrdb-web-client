@@ -1,0 +1,139 @@
+import { Rectangle } from '../Rectangle';
+import { Region } from '../Region';
+import { Category } from '../Category';
+import { Label } from '../Label';
+
+const BASE_API_ENDPOINT = 'https://free-crdb.keiji.dev/api/v1'
+
+export async function fetchHash(imageFile: File) {
+  const formData = new FormData();
+  formData.append('file', imageFile);
+  const response = await fetch(BASE_API_ENDPOINT + "/hash", { method: 'POST', body: formData });
+  return response.json();
+}
+
+const handleErrors = (response: any) => {
+  if (response.ok) {
+    return response;
+  }
+
+  switch (response.status) {
+    case 400: throw Error('INVALID_TOKEN');
+    case 401: throw Error('UNAUTHORIZED');
+    case 500: throw Error('INTERNAL_SERVER_ERROR');
+    case 502: throw Error('BAD_GATEWAY');
+    case 404: throw Error('NOT_FOUND');
+    default: throw Error('UNHANDLED_ERROR');
+  }
+};
+
+export async function fetchCategories() {
+  const response = await fetch(BASE_API_ENDPOINT + "/category")
+    .catch((e) => { throw Error(e); })
+    .then(handleErrors);
+  const jsonObj = await response.json();
+  const categories = jsonObj['categories'].map((categoryObj: any) => {
+    const id = categoryObj['id'];
+    const name = categoryObj['name'];
+    const order = categoryObj['order'];
+    return new Category(id, name, order);
+  });
+
+  return categories;
+}
+
+export async function fetchLabels(categoryId: number) {
+  const response = await fetch(BASE_API_ENDPOINT + `/category/${categoryId}`)
+    .catch((e) => { throw Error(e); })
+    .then(handleErrors);
+  const jsonObj = await response.json();
+  const labels = jsonObj['labels'].map((labelObj: any) => {
+    const categoryId = labelObj['category_id'];
+    const label = labelObj['label'];
+    const name = labelObj['name'];
+    const order = labelObj['order'];
+    return new Label(categoryId, label, name, order);
+  });
+
+  return labels;
+}
+
+function horizontalPoints(lines: Array<{}>): Array<number> {
+  const points: Array<number> = lines.map((line: any) => {
+    return [line['from_x'] as number, line['to_x'] as number]
+  }).flat();
+
+  return points;
+}
+
+function verticalPoints(lines: Array<{}>): Array<number> {
+  const points: Array<number> = lines.map((line: any) => {
+    return [line['from_y'] as number, line['to_y'] as number]
+  }).flat();
+
+  return points;
+}
+
+export async function fetchPageRegions(hashes: {}) {
+  const response = await fetch(BASE_API_ENDPOINT + "/page/" + hashes['dhash8'])
+    .catch((e) => { throw Error(e); })
+    .then(handleErrors);
+  const jsonObj = await response.json();
+  const regions = jsonObj['regions'].map((regionObj: any) => {
+    const categoryId = regionObj['category_id'];
+    const label = regionObj['label'];
+
+    const horizontalPointList = horizontalPoints(regionObj['lines']);
+    const verticalPointList = verticalPoints(regionObj['lines']);
+
+    const left = Math.min(...horizontalPointList);
+    const top = Math.min(...verticalPointList);
+    const right = Math.max(...horizontalPointList);
+    const bottom = Math.max(...verticalPointList);
+
+    const rectangle = new Rectangle()
+    rectangle.left = left;
+    rectangle.top = top;
+    rectangle.right = right;
+    rectangle.bottom= bottom;
+    rectangle.validate()
+
+    return new Region(categoryId, label, rectangle);
+  });
+
+  console.log(regions);
+
+  return regions;
+}
+
+export async function submitPageRegions(idempotencyKey: string, hashes: {}, regions: Array<Region>) {
+  console.log(hashes)
+  const regionsObj = regions.map((region) => {
+    console.log(`categoryId: ${region.categoryId}`)
+    return {
+      "category_id": region.categoryId,
+      "label": region.label,
+      "order": 0,
+      "lines": region.rectangle.toLines()
+    }
+  });
+  const jsonObj = {
+    "dhash8": hashes["dhash8"],
+    "dhash12": hashes["dhash12"],
+    "dhash16": hashes["dhash16"],
+    "regions": regionsObj
+  };
+
+  const body: string = JSON.stringify(jsonObj);
+  console.log(body);
+
+  const response = await fetch(BASE_API_ENDPOINT + "/page", {
+    method: 'POST',
+    headers: {
+      "Idempotency-Key": idempotencyKey
+    },
+    body: body
+  });
+  return response.json();
+
+}
