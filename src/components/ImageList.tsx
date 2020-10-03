@@ -1,9 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import '../ImageList.css';
+import { Container, GridList } from '@material-ui/core';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+
 import add_photo_alternate_black from '../add_photo_alternate-black-48dp.svg';
 
-function ImageList(props: any) {
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    root: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        backgroundColor: theme.palette.background.paper,
+    },
+    gridList: {
+        flexWrap: 'nowrap',
+        // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+        transform: 'translateZ(0)',
+    },
+    imageContainer: {
+        width: `200px`,
+        display: `flex`,
+        alignItems: `center`,
+        minWidth: `150px`,
+        margin: `8px`,
+        border: `1px  solid #cccccc`,
+    },
+    image: {
+        objectFit: `cover`,
+        width: `100%`,
+        height: `auto`,
+        maxWidth: `200px`,
+        maxHeight: `100%`,
+        marginLeft: `auto`,
+        marginRight: `auto`,
+    },
+    imagePlaceholder: {
+        marginLeft: `auto`,
+        marginRight: `auto`,
+    },
+    boxFile: {
+        display: `none`,
+    }
+}),
+);
+
+export function ImageList(props: any) {
+    const classes = useStyles();
+
     const [imageFiles, setImageFiles] = useState(Array<File>());
     const [previewImages, setPreviewImages] = useState(Array<string | ArrayBuffer>());
 
@@ -23,17 +68,12 @@ function ImageList(props: any) {
     }
 
     function changeFile(event: any) {
-        console.log('changeFile');
-
         event.preventDefault();
         const files = event.target.files;
         imageFiles.unshift(...files);
-        console.log(`reaimageFilesdFile` + imageFiles.length);
         imageFiles.forEach((imageFile, index) => {
-            console.log(`readFile` + imageFiles.length);
             readFile(index);
         });
-        console.log('setImageFiles ' + imageFiles.length);
         setImageFiles(imageFiles);
     }
 
@@ -41,8 +81,6 @@ function ImageList(props: any) {
         if (!previewImages) {
             return;
         }
-
-        console.log(`Do readFile`);
 
         const fileReader = new FileReader();
         fileReader.onload = (event) => {
@@ -56,51 +94,55 @@ function ImageList(props: any) {
         fileReader.readAsDataURL(imageFiles[index]);
     };
 
-    const createPreviewImage = (image: string) => {
+    const createPreviewImage = (image: string, classes, onClick: () => void ) => {
         return (
-            <div>
-                <img src={image} />
-            </div>
+            <Container className={classes.imageContainer} onClick={onClick}>
+                <img className={classes.image} src={image} />
+            </Container>
+
         )
     }
 
-    const createPreviewImages = () => {
-        console.log("createPreviewImages")
-
+    const createPreviewImages = (classes, callback: Callback) => {
         if (!previewImages) {
             return;
         }
 
         return (
-            previewImages.map((image) => {
-                console.log(typeof image)
+            previewImages.map((image, index: number) => {
+                const file = imageFiles[index];
+                const onSelect = () => {
+                    callback.onFileSelected(file);
+                };
                 if (typeof image === 'string') {
-                    return createPreviewImage(image);
+                    return createPreviewImage(image, classes, onSelect);
                 }
             })
         )
     }
 
     return (
-        <div className="image_list">
-            <div onClick={showFileDialog}>
-                <img className="placeholder" src={add_photo_alternate_black} />
-            </div>
-            {createPreviewImages()}
-            <input
-                ref={fileInput}
-                className="box_file"
-                type="file"
-                name="files[]"
-                id="file"
-                multiple
-                onChange={changeFile}
-            />
-        </div>);
+        <div className={classes.root}>
+            <GridList className={classes.gridList}>
+                <Container onClick={showFileDialog} className={classes.imageContainer}>
+                    <img className={classes.imagePlaceholder} src={add_photo_alternate_black} />
+                </Container>
+
+                {createPreviewImages(classes, props.callback)}
+                <input
+                    ref={fileInput}
+                    className={classes.boxFile}
+                    type="file"
+                    name="files[]"
+                    id="file"
+                    multiple
+                    onChange={changeFile}
+                />
+            </GridList>
+        </div>
+    );
 }
 
-export default ImageList;
-
-interface Callback {
-    onEvent(message: string): void
+export interface Callback {
+    onFileSelected(file: File): void
 }

@@ -1,42 +1,42 @@
 import React, { useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { Drawer, AppBar, Toolbar, IconButton, Typography } from '@material-ui/core';
+import { Drawer, AppBar, Toolbar, IconButton, CssBaseline, Container } from '@material-ui/core';
 
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import { AccountCircle } from '@material-ui/icons';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
+import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
 import './destyle.css';
-import './App.css';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
-import ImageList from './components/ImageList';
+import { ImageList, Callback } from './components/ImageList';
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
-
-const drawerWidth = 240;
+const drawerHeight = 210;
+const appBarHeight = 64;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: 'flex',
+      display: 'block',
+      height: `100vh`,
+    },
+    main: {
+      height: `calc(100% - ${appBarHeight}px)`,
+      width: `100%`,
     },
     appBar: {
-      transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
+      top: 'auto',
+      bottom: 0,
+    },
+    grow: {
+      flexGrow: 1,
     },
     appBarShift: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: drawerWidth,
-      transition: theme.transitions.create(['margin', 'width'], {
+      marginBottom: `calc(${drawerHeight}px)`,
+      transition: theme.transitions.create(['margin', 'height'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
@@ -48,11 +48,9 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'none',
     },
     drawer: {
-      width: drawerWidth,
-      flexShrink: 0,
     },
     drawerPaper: {
-      width: drawerWidth,
+      height: drawerHeight,
     },
     drawerHeader: {
       display: 'flex',
@@ -60,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(0, 1),
       // necessary for content to be below app bar
       ...theme.mixins.toolbar,
-      justifyContent: 'flex-end',
+      justifyContent: 'flex-start',
     },
     content: {
       flexGrow: 1,
@@ -69,33 +67,36 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
-      marginLeft: -drawerWidth,
+      marginBottom: -drawerHeight,
     },
     contentShift: {
-      transition: theme.transitions.create('margin', {
+      transition: theme.transitions.create(['margin', 'height'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      marginLeft: 0,
+      marginBottom: `calc(${drawerHeight}px)`,
     },
   }),
 );
 
+
 function App() {
-  const imageListContainer = useRef<HTMLDivElement>(null);
   const [imageListShown, setImageListShown] = useState(true);
+  const [selectedFile, setFile] = useState<File>();
+
+  const appBar = useRef<HTMLElement>(null);
 
   const classes = useStyles();
   const theme = useTheme();
 
-  const handleDrawerOpen = () => {
-    setImageListShown(true);
-  };
-
-  const handleDrawerClose = () => {
-    setImageListShown(false);
-  };
-  const handleMenu = () => { }
+  const callback = new (class implements Callback {
+    onFileSelected(file: File) {
+      setFile(file);
+    }
+  });
+  const toggleDrawer = () => {
+    setImageListShown(!imageListShown);
+  }
 
   return (
     <div className="App">
@@ -104,64 +105,46 @@ function App() {
 
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar
-          position="fixed"
-          className={clsx(classes.appBar, {
-            [classes.appBarShift]: imageListShown,
-          })}
-        >
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              edge="start"
-              className={clsx(classes.menuButton, imageListShown && classes.hide)}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap>
-              Persistent drawer
-          </Typography>
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
         <Drawer
           className={classes.drawer}
           variant="persistent"
-          anchor="left"
+          anchor="bottom"
           open={imageListShown}
           classes={{
             paper: classes.drawerPaper,
           }}
         >
-          <div className={classes.drawerHeader}>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-          </div>
-          <Divider />
-          <ImageList />
-          <Divider />
+          <ImageList callback={callback} />
         </Drawer>
-        <main
-          className={clsx(classes.content, {
-            [classes.contentShift]: imageListShown,
-          })}
-        >
-          <div className={classes.drawerHeader} />
-          <RegionEditorContainer />
 
+        <main className={classes.main}>
+          <RegionEditorContainer
+            selectedFile={selectedFile}
+            className={clsx(classes.content, {
+              [classes.contentShift]: imageListShown,
+            })}
+          />
         </main>
       </div>
+
+      <AppBar ref={appBar} position="fixed" color="primary" className={clsx(classes.appBar, {
+        [classes.appBarShift]: imageListShown,
+      })}>
+        <Toolbar>
+          <IconButton onClick={toggleDrawer} edge="start" color="inherit" aria-label="open drawer">
+            {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
+          </IconButton>
+
+          <div className={classes.grow} />
+          <IconButton color="inherit">
+            <NavigateBeforeIcon />
+          </IconButton>
+          <IconButton edge="end" color="inherit">
+            <NavigateNextIcon />
+          </IconButton>
+
+        </Toolbar>
+      </AppBar>
     </div >
   );
 }
