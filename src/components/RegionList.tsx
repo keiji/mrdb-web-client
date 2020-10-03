@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import '../RegionList.css';
+
 function RegionList(props: any) {
     const [isFinished, setFinished] = useState(false);
     const dummyList = () => {

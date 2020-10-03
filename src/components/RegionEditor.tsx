@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import '../RegionEditor.css';
+
 function RegionEditor(props: any) {
     const [isFinished, setFinished] = useState(false);
     const dummyList = () => {
@@ -20,7 +22,7 @@ function RegionEditor(props: any) {
     }
 
     return (
-        <div className="shopping-list">
+        <div className="region-editor-container">
         </div>
     );
 }

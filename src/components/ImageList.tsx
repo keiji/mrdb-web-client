@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+import '../ImageList.css';
+import add_photo_alternate_black from '../add_photo_alternate-black-48dp.svg';
+
 function ImageList(props: any) {
     const [imageFiles, setImageFiles] = useState(Array<File>());
     const [previewImages, setPreviewImages] = useState(Array<string | ArrayBuffer>());
@@ -55,9 +58,9 @@ function ImageList(props: any) {
 
     const createPreviewImage = (image: string) => {
         return (
-            <li>
+            <div>
                 <img src={image} />
-            </li>
+            </div>
         )
     }
 
@@ -67,9 +70,6 @@ function ImageList(props: any) {
         if (!previewImages) {
             return;
         }
-
-        console.log("createPreviewImages2")
-
 
         return (
             previewImages.map((image) => {
@@ -82,15 +82,11 @@ function ImageList(props: any) {
     }
 
     return (
-        <div>
-            <ul>
-                <li onClick={showFileDialog}>
-                    <div>
-                        <img src="../assets/add_photo_alternate-black-48dp.svg" />
-                    </div>
-                </li>
-                {createPreviewImages()}
-            </ul>
+        <div className="image_list">
+            <div onClick={showFileDialog}>
+                <img className="placeholder" src={add_photo_alternate_black} />
+            </div>
+            {createPreviewImages()}
             <input
                 ref={fileInput}
                 className="box_file"

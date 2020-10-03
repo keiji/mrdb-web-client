@@ -1,0 +1,24 @@
+.box_file {
+    display: none;
+}
+
+.image_list div {
+    display: flex;
+    align-items: center;
+    height: 180px;
+    width: 110px;
+    border: solid 1px #cccccc;
+    margin: 16px auto;
+}
+
+.image_list div img {
+    max-width: 110px;
+    max-height: 180px;
+    height: auto;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.image_list div img.placeholder {
+    width: 50px;
+}

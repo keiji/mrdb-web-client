@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import RegionEditor from './RegionEditor';
 import RegionList from './RegionList';
 
+import { Button } from '@material-ui/core';
+import '../RegionEditorContainer.css';
+
 function RegionEditorContainer(props: any) {
     const [count, setCount] = useState(0);
 
@@ -14,6 +17,7 @@ function RegionEditorContainer(props: any) {
 
     return (
         <div>
+            <Button>Hello!</Button>
             <div className="region_editor_container">
                 <RegionEditor />
             </div>
