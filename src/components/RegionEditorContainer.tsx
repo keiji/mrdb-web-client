@@ -3,9 +3,14 @@ import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
 import { createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
-import { Callback } from '../RegionEditorController';
+import { Callback as RegionEditorCallback } from '../RegionEditorController';
+import { Callback as RegionListCallback } from './RegionList';
+import { Callback as CategorySettingCallback } from './CategorySetting';
+
 import { Region } from '../Region';
 import * as apis from "../api/crdbApi";
+import { Category } from '../Category';
+import { Label } from '../Label';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -27,24 +32,57 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-const callback = new (class implements Callback {
-    onSelectedRegion(selectedRegion: Region | null) {
-    }
-    onAddedRegion(addedRegion: Region, regionList: Array<Region>) {
-        console.log("onAddedRegion");
-    }
-    onDeletedRegion(deletedRegion: Region, regionList: Array<Region>) {
-    }
-    onChangedLabel(changedRegion: Region, regionList: Array<Region>) {
-    }
-})();
-
 function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
-    const [selectedCategory, setSelectedCategory] = useState()
-    const [selectedLabel, setSelectedLabel] = useState()
+    const [categoryList, setCategoryList] = useState<Array<Category>>()
+    const [selectedCategory, setSelectedCategory] = useState<Category>()
+
+    const [labelList, setLabelList] = useState<Array<Label>>()
+
     const [regionList, setRegionList] = useState<Array<Region>>()
+    const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
+
+    const regionEditorCallback = new (class implements RegionEditorCallback {
+        onSelectedRegion(selectedRegion: Region | null) {
+            setSelectedRegion(selectedRegion)
+        }
+        onAddedRegion(addedRegion: Region, regionList: Array<Region>) {
+            setRegionList([...regionList]);
+        }
+        onDeletedRegion(deletedRegion: Region, regionList: Array<Region>) {
+            setRegionList([...regionList]);
+        }
+        onChangedLabel(changedRegion: Region, regionList: Array<Region>) {
+            setRegionList([...regionList]);
+        }
+    })();
+
+    const regionListCallback = new (class implements RegionListCallback {
+        onChangeRegionList(regionList: Region[]): void {
+            const newRegionList = [...regionList];
+            setRegionList(newRegionList);
+        }
+        onCategoriesUpdated(categoryList: Category[]): void {
+            const newCategoryList = [...categoryList];
+            setCategoryList(newCategoryList);
+        }
+        onRegionSelected(region: Region): void {
+            setSelectedRegion(region);
+        }
+    })();
+    const categorySettingCallback = new (class implements CategorySettingCallback {
+        onCategoriesUpdated(categoryList: Category[]): void {
+            const newCategoryList = [...categoryList];
+            setCategoryList(newCategoryList);
+        }
+        onCategorySelected(category: Category): void {
+            setSelectedCategory(category);
+        }
+        onLabelsUpdated(labelList: Label[]): void {
+            setLabelList(labelList);
+        }
+    })();
 
     const getRegions = async () => {
         const hashes = await apis.fetchHash(props.selectedFile);
@@ -66,16 +104,24 @@ function RegionEditorContainer(props: any) {
     return (
         <div className={classes.root}>
             <Grid container spacing={0}>
-                <Grid item xs={9} className={classes.regionEditor}>
+                <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor selectedFile={props.selectedFile}
                         selectedCategory={selectedCategory}
-                        selectedLabel={selectedLabel}
                         regionList={regionList}
-                        callback={callback}
+                        selectedRegion={selectedRegion}
+                        callback={regionEditorCallback}
                     />
                 </Grid>
-                <Grid item xs={3} className={classes.regionList} >
-                    <RegionList />
+                <Grid item xs={4} className={classes.regionList} >
+                    <RegionList
+                        regionList={regionList}
+                        selectedRegion={selectedRegion}
+                        categoryList={categoryList}
+                        selectedCategory={selectedCategory}
+                        labelList={labelList}
+                        callback={regionListCallback}
+                        categorySettingCallback={categorySettingCallback}
+                    />
                 </Grid>
 
             </Grid>

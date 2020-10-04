@@ -10,6 +10,8 @@ export class RegionEditorController {
   category: Category;
   label = 0;
 
+  regionList = Array<Region>();
+
   private canvas: HTMLCanvasElement
   private image: HTMLImageElement
 
@@ -27,8 +29,6 @@ export class RegionEditorController {
       // Do nothing
     }
   });
-
-  private regionList: Array<Region>
 
   private _editingRegion: Region | null = null;
   set editingRegion(region: Region | null) {
@@ -148,17 +148,12 @@ export class RegionEditorController {
     canvas: HTMLCanvasElement,
     image: HTMLImageElement,
     category: Category,
-    label: number,
-    regionList: Array<Region>,
     callback: Callback,
   ) {
     this.canvas = canvas;
     this.image = image;
 
     this.category = category;
-    this.label = label;
-
-    this.regionList = regionList;
 
     this.callback = callback;
 

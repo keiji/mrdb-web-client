@@ -1,10 +1,21 @@
-import { Container, createStyles, makeStyles, Theme } from '@material-ui/core';
+import { Container, createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
 import React, { useState } from 'react';
+import { Region } from '../Region';
+import MoveOrderUp from '@material-ui/icons/ExpandLess';
+import MoveOrderDown from '@material-ui/icons/ExpandMore';
+import CategorySetting from './CategorySetting';
+import { Category } from '../Category';
+import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
+import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import { Label } from '../Label';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         overflowY: `scroll`,
         backgroundColor: theme.palette.background.paper,
+    },
+    table: {
+        minWidth: `100%`,
     },
 }),
 );
@@ -12,62 +23,119 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 function RegionList(props: any) {
     const classes = useStyles();
 
-    const [isFinished, setFinished] = useState(false);
-    const dummyList = () => {
-        return [2, 5, 7, 4].map((num) =>
-            <li>{num}</li>
-        );
+    if (!props.regionList) {
+        return (<div></div>);
     }
-    const handleClick = () => {
-        props.callback.onEvent('hi');
-        setFinished(!isFinished);
+
+    const moveOrder = (fromIndex: number, toIndex: number): Array<Region> => {
+        const regionList = props.regionList;
+        const temp = regionList[toIndex];
+        regionList[toIndex] = regionList[fromIndex];
+        regionList[fromIndex] = temp;
+        return regionList;
     }
-    const condition = () => {
-        if (isFinished) {
-            return (<span>ate</span>)
+
+    const moveOrderDown = (index: number) => {
+        const newIndex = index + 1;
+        const regionList = moveOrder(index, newIndex);
+
+        props.callback.onChangeRegionList(regionList);
+    }
+    const moveOrderUp = (index: number) => {
+        const newIndex = index - 1;
+        const regionList = moveOrder(index, newIndex);
+
+        props.callback.onChangeRegionList(regionList);
+    }
+
+    const orderIcons = (index: number) => {
+        if (index == 0) {
+            return (
+                <TableCell>
+                    <IconButton onClick={() => { moveOrderDown(index) }}>
+                        <MoveOrderDown />
+                    </IconButton>
+                </TableCell>
+            );
+        } else if (index == props.regionList.length - 1) {
+            return (
+                <TableCell>
+                    <IconButton onClick={() => { moveOrderUp(index) }}>
+                        <MoveOrderUp />
+                    </IconButton>
+                </TableCell>
+            );
         } else {
-            return (<span>eat</span>)
+            return (
+                <TableCell>
+                    <IconButton onClick={() => { moveOrderUp(index) }}>
+                        <MoveOrderUp />
+                    </IconButton>
+                    <IconButton onClick={() => { moveOrderDown(index) }}>
+                        <MoveOrderDown />
+                    </IconButton>
+                </TableCell>
+            );
         }
+    }
+
+    const selectedOrNot = (region: Region) => {
+        if (props.selectedRegion == region) {
+            return (<TableCell><RadioButtonCheckedIcon /></TableCell>);
+        }
+        return (<TableCell><RadioButtonUncheckedIcon /></TableCell>);
+
+    }
+
+    const selectRegion = (region: Region) => {
+        props.callback.onRegionSelected(region);
+    }
+
+    const label = (labelValue: number) => {
+        const labelList: Array<Label> = props.labelList;
+        if (!labelList) {
+            return (<TableCell>Unknown</TableCell>);
+        }
+        const label = labelList.filter((label: Label) => { return label.label == labelValue })[0];
+
+    return (<TableCell>{labelValue}: {label.name}</TableCell>);
     }
 
     return (
         <div className={classes.root}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-            donec massa sapien faucibus et molestie ac.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-            donec massa sapien faucibus et molestie ac.
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-            ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-            facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-            gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-            donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-            adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-            Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-            imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-            arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-            donec massa sapien faucibus et molestie ac.
+            <CategorySetting
+                categoryList={props.categoryList}
+                selectedCategory={props.selectedCategory}
+                callback={props.categorySettingCallback} />
+
+            <TableContainer component={Paper}>
+                <Table className={classes.table} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell></TableCell>
+                            <TableCell>Label</TableCell>
+                            <TableCell align="center">Order</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {props.regionList.map((region: Region, index: number) => (
+                            <TableRow key={index} onClick={() => { selectRegion(region) }}>
+                                {selectedOrNot(region)}
+                                {label(region.label)}
+                                {orderIcons(index)}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </div>
     );
 }
 
 export default RegionList;
 
-interface Callback {
-    onEvent(message: string): void
+export interface Callback {
+    onChangeRegionList(regionList: Array<Region>): void
+    onCategoriesUpdated(categoryList: Array<Category>): void
+    onRegionSelected(region: Region): void
 }
