@@ -1,4 +1,4 @@
-import { Container, createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
+import { createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
 import React, { useState } from 'react';
 import { Region } from '../Region';
 import MoveOrderUp from '@material-ui/icons/ExpandLess';
@@ -8,6 +8,8 @@ import { Category } from '../Category';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import { Label } from '../Label';
+import PublishIcon from '@material-ui/icons/Publish';
+import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -16,6 +18,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     table: {
         minWidth: `100%`,
+    },
+    menu: {
     },
 }),
 );
@@ -94,15 +98,24 @@ function RegionList(props: any) {
     const label = (labelValue: number) => {
         const labelList: Array<Label> = props.labelList;
         if (!labelList) {
-            return (<TableCell>Unknown</TableCell>);
+            return (<TableCell>{labelValue}</TableCell>);
         }
         const label = labelList.filter((label: Label) => { return label.label == labelValue })[0];
 
-    return (<TableCell>{labelValue}: {label.name}</TableCell>);
+        return (<TableCell>{labelValue}: {label.name}</TableCell>);
     }
 
     return (
         <div className={classes.root}>
+            <div className={classes.menu}>
+                <IconButton color="inherit" onClick={() => { props.callback.onSubmitRegionList(props.regionList); }}>
+                    <PublishIcon />
+                </IconButton>
+                <IconButton edge="end" color="inherit">
+                    <ClearIcon />
+                </IconButton>
+            </div>
+
             <CategorySetting
                 categoryList={props.categoryList}
                 selectedCategory={props.selectedCategory}
@@ -138,4 +151,5 @@ export interface Callback {
     onChangeRegionList(regionList: Array<Region>): void
     onCategoriesUpdated(categoryList: Array<Category>): void
     onRegionSelected(region: Region): void
+    onSubmitRegionList(regionList: Region[]): void
 }

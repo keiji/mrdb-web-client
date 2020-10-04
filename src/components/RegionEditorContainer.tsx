@@ -12,6 +12,8 @@ import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: `100%`,
@@ -35,10 +37,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
+    const idempotencyKey = uuidv4();
+
     const [categoryList, setCategoryList] = useState<Array<Category>>()
     const [selectedCategory, setSelectedCategory] = useState<Category>()
 
     const [labelList, setLabelList] = useState<Array<Label>>()
+
+    const [hashes, setHashes] = useState<{}>()
 
     const [regionList, setRegionList] = useState<Array<Region>>()
     const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
@@ -70,6 +76,9 @@ function RegionEditorContainer(props: any) {
         onRegionSelected(region: Region): void {
             setSelectedRegion(region);
         }
+        onSubmitRegionList(regionList: Region[]): void {
+            submitRegions(regionList);
+        }
     })();
     const categorySettingCallback = new (class implements CategorySettingCallback {
         onCategoriesUpdated(categoryList: Category[]): void {
@@ -86,6 +95,8 @@ function RegionEditorContainer(props: any) {
 
     const getRegions = async () => {
         const hashes = await apis.fetchHash(props.selectedFile);
+        setHashes(hashes);
+
         try {
             const rl = await apis.fetchPageRegions(hashes);
             setRegionList(rl);
@@ -100,6 +111,16 @@ function RegionEditorContainer(props: any) {
         }
         getRegions();
     }, [props.selectedFile]);
+
+    const submitRegions = async (regions: Array<Region>) => {
+        if (!hashes) {
+            return;
+        }
+        if (!regionList) {
+            return;
+        }
+        await apis.submitPageRegions(idempotencyKey, hashes, regionList);
+    };
 
     return (
         <div className={classes.root}>

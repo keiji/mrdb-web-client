@@ -9,8 +9,6 @@ import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
-import './destyle.css';
-
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
 
@@ -52,14 +50,6 @@ const useStyles = makeStyles((theme: Theme) =>
     drawerPaper: {
       height: drawerHeight,
     },
-    drawerHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: theme.spacing(0, 1),
-      // necessary for content to be below app bar
-      ...theme.mixins.toolbar,
-      justifyContent: 'flex-start',
-    },
     content: {
       flexGrow: 1,
       padding: theme.spacing(3),
@@ -100,11 +90,12 @@ function App() {
 
   return (
     <div className="App">
+      <CssBaseline />
+
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
 
       <div className={classes.root}>
-        <CssBaseline />
         <Drawer
           className={classes.drawer}
           variant="persistent"
