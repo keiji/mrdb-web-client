@@ -1,4 +1,4 @@
-import { createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
+import { Box, Container, createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
 import React, { useState } from 'react';
 import { Region } from '../Region';
 import MoveOrderUp from '@material-ui/icons/ExpandLess';
@@ -8,8 +8,6 @@ import { Category } from '../Category';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 import { Label } from '../Label';
-import PublishIcon from '@material-ui/icons/Publish';
-import ClearIcon from '@material-ui/icons/Clear';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -18,8 +16,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     table: {
         minWidth: `100%`,
-    },
-    menu: {
     },
 }),
 );
@@ -106,16 +102,7 @@ function RegionList(props: any) {
     }
 
     return (
-        <div className={classes.root}>
-            <div className={classes.menu}>
-                <IconButton color="inherit" onClick={() => { props.callback.onSubmitRegionList(props.regionList); }}>
-                    <PublishIcon />
-                </IconButton>
-                <IconButton edge="end" color="inherit">
-                    <ClearIcon />
-                </IconButton>
-            </div>
-
+        <Box className={classes.root}>
             <CategorySetting
                 categoryList={props.categoryList}
                 selectedCategory={props.selectedCategory}
@@ -141,7 +128,7 @@ function RegionList(props: any) {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     );
 }
 
@@ -151,5 +138,4 @@ export interface Callback {
     onChangeRegionList(regionList: Array<Region>): void
     onCategoriesUpdated(categoryList: Array<Category>): void
     onRegionSelected(region: Region): void
-    onSubmitRegionList(regionList: Region[]): void
 }

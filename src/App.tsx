@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { Drawer, AppBar, Toolbar, IconButton, CssBaseline, Container } from '@material-ui/core';
+import { Drawer, IconButton, CssBaseline, Paper } from '@material-ui/core';
 
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
@@ -13,7 +13,7 @@ import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
 
 const drawerHeight = 210;
-const appBarHeight = 64;
+const drawerHeaderHeight = 64;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,33 +22,38 @@ const useStyles = makeStyles((theme: Theme) =>
       height: `100vh`,
     },
     main: {
-      height: `calc(100% - ${appBarHeight}px)`,
+      height: `calc(100% - ${drawerHeaderHeight}px)`,
       width: `100%`,
     },
-    appBar: {
+    drawerHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: theme.spacing(1, 1),
+      justifyContent: 'flex-end',
+      position: `fixed`,
+      ...theme.mixins.toolbar,
       top: 'auto',
-      bottom: 0,
+      bottom: `0px`,
+      width: `100%`,
+      backgroundColor: theme.palette.background.paper,
     },
     grow: {
       flexGrow: 1,
     },
-    appBarShift: {
+    drawerHeaderShift: {
       marginBottom: `calc(${drawerHeight}px)`,
       transition: theme.transitions.create(['margin', 'height'], {
         easing: theme.transitions.easing.easeOut,
         duration: theme.transitions.duration.enteringScreen,
       }),
     },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    hide: {
-      display: 'none',
-    },
     drawer: {
     },
     drawerPaper: {
       height: drawerHeight,
+    },
+    drawerHeaderPaper: {
+      paddingLeft: `16dp`,
     },
     content: {
       flexGrow: 1,
@@ -88,6 +93,14 @@ function App() {
     setImageListShown(!imageListShown);
   }
 
+  const onKeyDownListener = (event) => {
+    if (event.key == ' ') {
+      toggleDrawer();
+    }
+  }
+
+  window.addEventListener("keydown", onKeyDownListener);
+
   return (
     <div className="App">
       <CssBaseline />
@@ -118,25 +131,23 @@ function App() {
         </main>
       </div>
 
-      <AppBar ref={appBar} position="fixed" color="primary" className={clsx(classes.appBar, {
-        [classes.appBarShift]: imageListShown,
+      <Paper className={clsx(classes.drawerHeaderPaper, classes.drawerHeader, {
+        [classes.drawerHeaderShift]: imageListShown,
       })}>
-        <Toolbar>
-          <IconButton onClick={toggleDrawer} edge="start" color="inherit" aria-label="open drawer">
-            {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
-          </IconButton>
+        <IconButton onClick={toggleDrawer} color="inherit" aria-label="open drawer">
+          {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
+        </IconButton>
 
-          <div className={classes.grow} />
-          <IconButton color="inherit">
-            <NavigateBeforeIcon />
-          </IconButton>
-          <IconButton edge="end" color="inherit">
-            <NavigateNextIcon />
-          </IconButton>
+        <div className={classes.grow} />
 
-        </Toolbar>
-      </AppBar>
-    </div >
+        <IconButton color="inherit">
+          <NavigateBeforeIcon />
+        </IconButton>
+        <IconButton color="inherit">
+          <NavigateNextIcon />
+        </IconButton>
+      </Paper>
+    </div>
   );
 }
 

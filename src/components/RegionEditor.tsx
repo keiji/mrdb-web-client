@@ -2,7 +2,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
 import { RegionEditorController } from '../RegionEditorController';
 import * as manipulateImage from "../manipulateImage";
-import { Category } from '../Category';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {

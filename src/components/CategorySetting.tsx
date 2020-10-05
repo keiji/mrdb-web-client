@@ -71,13 +71,10 @@ function CategorySetting(props: any) {
     return (
         <div className={classes.root} >
             <FormControl className={classes.formControl}>
-                <InputLabel shrink id="demo-simple-select-placeholder-label-label">
-                    Category
-                </InputLabel>
-                <Select
+            <InputLabel id="demo-simple-select-label">Category</InputLabel>
+            <Select
                     value={selectedCategoryValue()}
                     onChange={categorySelected}
-                    displayEmpty
                     className={classes.selectEmpty}
                 >
                     {categoryList()}

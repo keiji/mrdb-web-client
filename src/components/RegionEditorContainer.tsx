@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { createStyles, Grid, makeStyles, Theme } from '@material-ui/core';
+import { AppBar, Container, createStyles, Grid, IconButton, makeStyles, Theme, Toolbar, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -12,6 +12,9 @@ import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
 
+import PublishIcon from '@material-ui/icons/Publish';
+import ClearIcon from '@material-ui/icons/Clear';
+
 import { v4 as uuidv4 } from 'uuid';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -19,7 +22,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: `100%`,
         height: `100%`,
         backgroundColor: theme.palette.background.paper,
-        display: `flex`
+        display: `flex`,
+    },
+    grid: {
+        top: `64px`,
+        height: `calc(100% - 64px)`,
     },
     regionEditor: {
         height: `100%`,
@@ -30,6 +37,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: `100%`,
         backgroundColor: theme.palette.background.paper,
         display: `flex`
+    },
+    title: {
+        flexGrow: 1,
+    },
+    menu: {
     },
 }),
 );
@@ -122,9 +134,32 @@ function RegionEditorContainer(props: any) {
         await apis.submitPageRegions(idempotencyKey, hashes, regionList);
     };
 
-    return (
-        <div className={classes.root}>
-            <Grid container spacing={0}>
+    const title = () => {
+        if (!props.selectedFile) {
+          return "CRDB";
+        }
+        return props.selectedFile.name
+      }
+
+      return (
+        <React.Fragment>
+            <AppBar position="static">
+                <Toolbar>
+                    <Typography variant="h6" className={classes.title}>
+                        {title()}
+                    </Typography>
+                    <div className={classes.menu}>
+                        <IconButton color="inherit" onClick={() => { submitRegions(props.regionList); }}>
+                            <PublishIcon />
+                        </IconButton>
+                        <IconButton edge="end" color="inherit">
+                            <ClearIcon />
+                        </IconButton>
+                    </div>
+                </Toolbar>
+            </AppBar>
+
+            <Grid container spacing={0} className={classes.grid}>
                 <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor selectedFile={props.selectedFile}
                         selectedCategory={selectedCategory}
@@ -146,7 +181,7 @@ function RegionEditorContainer(props: any) {
                 </Grid>
 
             </Grid>
-        </div>
+        </React.Fragment>
     );
 }
 
