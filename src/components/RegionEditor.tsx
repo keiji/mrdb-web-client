@@ -94,6 +94,13 @@ export function RegionEditor(props: any) {
     }, [props.selectedFile]);
 
     useEffect(() => {
+        if (regionEditorController) {
+            regionEditorController.destroy();
+            regionEditorController = null;
+        }
+    }, [cacheImage]);
+
+    useEffect(() => {
         if (!canvas.current) {
             return;
         }
@@ -118,14 +125,7 @@ export function RegionEditor(props: any) {
         regionEditorController.regionList = props.regionList;
         regionEditorController.redraw();
 
-    }, [props.regionList]);
-
-    useEffect(() => {
-        if (regionEditorController) {
-            regionEditorController.destroy();
-            regionEditorController = null;
-        }
-    }, [cacheImage]);
+    }, [cacheImage, props.regionList]);
 
     useEffect(() => {
         if (!canvas.current) {

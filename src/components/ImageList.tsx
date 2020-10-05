@@ -75,6 +75,7 @@ export function ImageList(props: any) {
             readFile(index);
         });
         setImageFiles(imageFiles);
+        props.callback.onFileListUpdated(imageFiles)
     }
 
     const readFile = (index: number) => {
@@ -94,7 +95,7 @@ export function ImageList(props: any) {
         fileReader.readAsDataURL(imageFiles[index]);
     };
 
-    const createPreviewImage = (image: string, classes, onClick: () => void ) => {
+    const createPreviewImage = (image: string, classes, onClick: () => void) => {
         return (
             <Container className={classes.imageContainer} onClick={onClick}>
                 <img className={classes.image} src={image} />
@@ -145,4 +146,5 @@ export function ImageList(props: any) {
 
 export interface Callback {
     onFileSelected(file: File): void
+    onFileListUpdated(fileList: Array<File>): void
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { Drawer, IconButton, CssBaseline, Paper } from '@material-ui/core';
@@ -11,6 +11,7 @@ import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
+import { nextTick } from 'process';
 
 const drawerHeight = 210;
 const drawerHeaderHeight = 64;
@@ -77,32 +78,72 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function App() {
   const [imageListShown, setImageListShown] = useState(true);
+  const [fileList, setFileList] = useState<Array<File>>();
   const [selectedFile, setFile] = useState<File>();
 
-  const appBar = useRef<HTMLElement>(null);
+  const rootElement = useRef<HTMLDivElement>(null);
 
   const classes = useStyles();
-  const theme = useTheme();
 
   const callback = new (class implements Callback {
+    onFileListUpdated(fileList: File[]): void {
+      setFileList(fileList);
+    }
+
     onFileSelected(file: File) {
       setFile(file);
     }
   });
+
   const toggleDrawer = () => {
     setImageListShown(!imageListShown);
   }
 
+  const prevFile = () => {
+    if (!selectedFile) {
+      return
+    }
+    if (!fileList) {
+      return
+    }
+    const currentIndex = fileList.indexOf(selectedFile)
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const index = currentIndex - 1;
+    if (index >= 0) {
+      setFile(fileList[index]);
+    }
+  }
+
+  const nextFile = () => {
+    if (!selectedFile) {
+      return
+    }
+    if (!fileList) {
+      return
+    }
+    const currentIndex = fileList.indexOf(selectedFile)
+    if (currentIndex < 0) {
+      return;
+    }
+
+    const index = currentIndex + 1;
+    if (index < fileList.length) {
+      setFile(fileList[index]);
+    }
+  }
+
   const onKeyDownListener = (event) => {
     if (event.key == ' ') {
+      event.preventDefault();
       toggleDrawer();
     }
   }
 
-  window.addEventListener("keydown", onKeyDownListener);
-
   return (
-    <div className="App">
+    <div className="App" ref={rootElement} onKeyDown={onKeyDownListener} tabIndex={-1}>
       <CssBaseline />
 
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
@@ -140,10 +181,10 @@ function App() {
 
         <div className={classes.grow} />
 
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={prevFile}>
           <NavigateBeforeIcon />
         </IconButton>
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={nextFile}>
           <NavigateNextIcon />
         </IconButton>
       </Paper>

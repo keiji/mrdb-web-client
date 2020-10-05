@@ -236,6 +236,10 @@ export class RegionEditorController {
 
     ctx.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
 
+    if (!this.regionList) {
+      return;
+    }
+
     console.log(`regionList: ${this.regionList.length}`);
 
     this.regionList.forEach((region, index) => {

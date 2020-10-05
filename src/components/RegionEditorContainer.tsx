@@ -106,6 +106,8 @@ function RegionEditorContainer(props: any) {
     })();
 
     const getRegions = async () => {
+        setRegionList(new Array<Region>());
+
         const hashes = await apis.fetchHash(props.selectedFile);
         setHashes(hashes);
 
@@ -113,7 +115,6 @@ function RegionEditorContainer(props: any) {
             const rl = await apis.fetchPageRegions(hashes);
             setRegionList(rl);
         } catch (error) {
-            setRegionList(new Array<Region>());
         }
     }
 
