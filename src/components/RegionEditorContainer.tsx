@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, Container, createStyles, Grid, IconButton, makeStyles, Theme, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -13,7 +13,8 @@ import { Category } from '../Category';
 import { Label } from '../Label';
 
 import PublishIcon from '@material-ui/icons/Publish';
-import ClearIcon from '@material-ui/icons/Clear';
+import RestoreIcon from '@material-ui/icons/Restore';
+import SaveIcon from '@material-ui/icons/Save';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -46,6 +47,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
+export interface State extends SnackbarOrigin {
+    open: boolean;
+}
+
 function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
@@ -60,6 +65,15 @@ function RegionEditorContainer(props: any) {
 
     const [regionList, setRegionList] = useState<Array<Region>>()
     const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
+
+    const [snackbarText, setSnackbarText] = useState<string>("Hello")
+
+    const [state, setState] = useState<State>({
+        open: false,
+        vertical: 'bottom',
+        horizontal: 'center',
+    });
+    const { vertical, horizontal, open } = state;
 
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
@@ -133,33 +147,56 @@ function RegionEditorContainer(props: any) {
             return;
         }
         await apis.submitPageRegions(idempotencyKey, hashes, regionList);
+
+        setSnackbarText("Submit completed.");
+        setState({ ...state, open: true });
     };
 
     const title = () => {
         if (!props.selectedFile) {
-          return "CRDB";
+            return "CRDB";
         }
         return props.selectedFile.name
-      }
+    }
 
-      return (
+    const onSnackbarClose = () => {
+        setState({ ...state, open: false });
+    }
+
+    const menu = () => {
+        return (
+            <div className={classes.menu}>
+                <IconButton color="inherit" onClick={() => { submitRegions(props.regionList); }}>
+                    <PublishIcon />
+                </IconButton>
+                <IconButton color="inherit">
+                    <SaveIcon />
+                </IconButton>
+                <IconButton edge="end" color="inherit">
+                    <RestoreIcon />
+                </IconButton>
+            </div>
+        );
+    }
+    return (
         <React.Fragment>
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
                         {title()}
                     </Typography>
-                    <div className={classes.menu}>
-                        <IconButton color="inherit" onClick={() => { submitRegions(props.regionList); }}>
-                            <PublishIcon />
-                        </IconButton>
-                        <IconButton edge="end" color="inherit">
-                            <ClearIcon />
-                        </IconButton>
-                    </div>
+                    {menu()}
                 </Toolbar>
             </AppBar>
 
+            <Snackbar
+                open={open}
+                onClose={onSnackbarClose}
+                message={snackbarText}
+                autoHideDuration={2000}
+                anchorOrigin={{ vertical, horizontal }}
+                key={vertical + horizontal}
+            />
             <Grid container spacing={0} className={classes.grid}>
                 <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor selectedFile={props.selectedFile}

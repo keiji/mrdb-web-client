@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { Drawer, IconButton, CssBaseline, Paper } from '@material-ui/core';
+import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button } from '@material-ui/core';
 
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
 import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
-import { nextTick } from 'process';
 
 const drawerHeight = 210;
 const drawerHeaderHeight = 64;
@@ -81,6 +81,8 @@ function App() {
   const [fileList, setFileList] = useState<Array<File>>();
   const [selectedFile, setFile] = useState<File>();
 
+  const [dialogShown, setDialogShown] = useState(true);
+
   const rootElement = useRef<HTMLDivElement>(null);
 
   const classes = useStyles();
@@ -142,6 +144,52 @@ function App() {
     }
   }
 
+  const showDialog = () => {
+    const handleAgree = () => {
+      setDialogShown(false);
+    }
+    const handleDisagree = () => {
+      window.location.href = `https://google.com`;
+    }
+
+    return (
+      <Dialog
+        open={dialogShown}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Agreement</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Image files(contents) will be uploaded to the server for generate image-ids by "imagehash" algorithm.
+            And contents will save on the server and will be used to improve services.<br />
+            <br />
+            <strong>WE DO NOT REDISTRIBUTE YOUR CONTENTS TO THE OTHERS.</strong>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDisagree} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleAgree} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+  const showButtons = () => {
+    return (
+      <Box>
+        <IconButton color="inherit" onClick={prevFile}>
+          <NavigateBeforeIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={nextFile}>
+          <NavigateNextIcon />
+        </IconButton>
+      </Box>
+    );
+  }
   return (
     <div className="App" ref={rootElement} onKeyDown={onKeyDownListener} tabIndex={-1}>
       <CssBaseline />
@@ -181,13 +229,11 @@ function App() {
 
         <div className={classes.grow} />
 
-        <IconButton color="inherit" onClick={prevFile}>
-          <NavigateBeforeIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={nextFile}>
-          <NavigateNextIcon />
-        </IconButton>
+        {showButtons()}
       </Paper>
+
+      {showDialog()}
+
     </div>
   );
 }
