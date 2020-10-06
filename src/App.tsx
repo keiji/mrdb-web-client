@@ -214,7 +214,9 @@ function App() {
             paper: classes.drawerPaper,
           }}
         >
-          <ImageList callback={callback} />
+          <ImageList
+            selectedFile={selectedFile}
+            callback={callback} />
         </Drawer>
 
         <main className={classes.main}>

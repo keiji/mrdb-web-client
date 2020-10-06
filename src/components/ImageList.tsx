@@ -21,12 +21,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
         transform: 'translateZ(0)',
     },
+    imageBoxContainerSelected: {
+        border: `1px solid #0000ff !important;`,
+    },
     imageBoxContainer: {
         width: `200px`,
         height: `100%`,
         minWidth: `150px`,
         margin: `8px`,
-        border: `1px  solid #cccccc`,
+        border: `1px solid #cccccc`,
         position: `relative`,
     },
     imageContainer: {
@@ -118,9 +121,16 @@ export function ImageList(props: any) {
         fileReader.readAsDataURL(imageFiles[index]);
     };
 
-    const createPreviewImage = (image: string, classes, onClick: (event: any) => void, onDelete: (event: any) => void) => {
+    const createPreviewImage = (image: string, classes, isSelected: boolean, onClick: (event: any) => void, onDelete: (event: any) => void) => {
+        const imageBoxClassName = () => {
+            if (isSelected) {
+                return (classes.imageBoxContainerSelected + ` ` + classes.imageBoxContainer);
+            } else {
+                return (classes.imageBoxContainer);
+            }
+        }
         return (
-            <Box className={classes.imageBoxContainer}>
+            <Box className={imageBoxClassName()}>
                 <Container className={classes.imageContainer}>
                     <img className={classes.image} src={image} />
                 </Container>
@@ -164,7 +174,10 @@ export function ImageList(props: any) {
                     props.callback.onFileListUpdated(imageFiles)
                 };
                 if (typeof image === 'string') {
-                    return createPreviewImage(image, classes, onSelect, onDelete);
+                    return createPreviewImage(
+                        image, classes,
+                        (file == props.selectedFile),
+                        onSelect, onDelete);
                 }
             })
         )
