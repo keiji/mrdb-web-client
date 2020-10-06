@@ -13,6 +13,10 @@ import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
 
+// https://techracho.bpsinc.jp/hachi8833/2019_10_09/80851
+const KEY_AGREEMENT = 'agreement';
+const LATEST_AGREEMENT_DATE = '20201006';
+
 const drawerHeight = 210;
 const drawerHeaderHeight = 64;
 
@@ -81,7 +85,8 @@ function App() {
   const [fileList, setFileList] = useState<Array<File>>();
   const [selectedFile, setFile] = useState<File>();
 
-  const [dialogShown, setDialogShown] = useState(true);
+  const agreementDate = localStorage.getItem(KEY_AGREEMENT);
+  const [dialogShown, setDialogShown] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true );
 
   const rootElement = useRef<HTMLDivElement>(null);
 
@@ -146,6 +151,7 @@ function App() {
 
   const showDialog = () => {
     const handleAgree = () => {
+      localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
       setDialogShown(false);
     }
     const handleDisagree = () => {
@@ -161,10 +167,11 @@ function App() {
         <DialogTitle id="alert-dialog-title">Agreement</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Image files(contents) will be uploaded to the server for generate image-ids by "imagehash" algorithm.
-            And contents will save on the server and will be used to improve services.<br />
+            Image files will be uploaded to the server for generate image-ids by "imagehash" algorithm.
+            And image files will be saved and used to improve services.<br />
+            ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.<br />
             <br />
-            <strong>WE DO NOT REDISTRIBUTE YOUR CONTENTS TO THE OTHERS.</strong>
+            <strong>WE DO NOT REDISTRIBUTE YOUR IMAGE FILES TO THE OTHERS.</strong>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
