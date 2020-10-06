@@ -55,13 +55,12 @@ function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
     const idempotencyKey = uuidv4();
+    let hashes = {};
 
     const [categoryList, setCategoryList] = useState<Array<Category>>()
     const [selectedCategory, setSelectedCategory] = useState<Category>()
 
     const [labelList, setLabelList] = useState<Array<Label>>()
-
-    const [hashes, setHashes] = useState<{}>()
 
     const [regionList, setRegionList] = useState<Array<Region>>()
     const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
@@ -122,12 +121,13 @@ function RegionEditorContainer(props: any) {
     const getRegions = async () => {
         setRegionList(new Array<Region>());
 
-        const hashes = await apis.fetchHash(props.selectedFile);
-        setHashes(hashes);
+        hashes = await apis.fetchHash(props.selectedFile);
 
         try {
-            const rl = await apis.fetchPageRegions(hashes);
-            setRegionList(rl);
+            const result = await apis.fetchPageRegions(hashes);
+            if (hashes === result.hashes) {
+                setRegionList(result.regions);
+            }
         } catch (error) {
         }
     }

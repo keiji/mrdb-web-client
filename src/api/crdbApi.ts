@@ -95,15 +95,16 @@ export async function fetchPageRegions(hashes: {}) {
     rectangle.left = left;
     rectangle.top = top;
     rectangle.right = right;
-    rectangle.bottom= bottom;
+    rectangle.bottom = bottom;
     rectangle.validate()
 
     return new Region(categoryId, label, rectangle);
   });
 
-  console.log(regions);
-
-  return regions;
+  return {
+    hashes: hashes,
+    regions: regions
+  };
 }
 
 export async function submitPageRegions(idempotencyKey: string, hashes: {}, regions: Array<Region>) {
