@@ -70,7 +70,7 @@ function RegionEditorContainer(props: any) {
 
     const [state, setState] = useState<State>({
         open: false,
-        vertical: 'bottom',
+        vertical: 'top',
         horizontal: 'center',
     });
     const { vertical, horizontal, open } = state;

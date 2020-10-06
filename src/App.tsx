@@ -86,7 +86,7 @@ function App() {
   const [selectedFile, setFile] = useState<File>();
 
   const agreementDate = localStorage.getItem(KEY_AGREEMENT);
-  const [dialogShown, setDialogShown] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true );
+  const [dialogShown, setDialogShown] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true);
 
   const rootElement = useRef<HTMLDivElement>(null);
 

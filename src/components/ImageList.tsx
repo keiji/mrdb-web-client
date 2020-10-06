@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { Container, GridList } from '@material-ui/core';
+import { Box, Container, GridList, IconButton } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+
+import ClearIcon from '@material-ui/icons/Clear';
 
 import add_photo_alternate_black from '../add_photo_alternate-black-48dp.svg';
 
@@ -19,20 +21,25 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
         transform: 'translateZ(0)',
     },
-    imageContainer: {
+    imageBoxContainer: {
         width: `200px`,
-        display: `flex`,
-        alignItems: `center`,
+        height: `100%`,
         minWidth: `150px`,
         margin: `8px`,
         border: `1px  solid #cccccc`,
+        position: `relative`,
+    },
+    imageContainer: {
+        width: `100%`,
+        height: `100%`,
+        display: `flex`,
+        alignItems: `center`,
+        position: `absolute`,
     },
     image: {
         objectFit: `cover`,
         width: `100%`,
         height: `auto`,
-        maxWidth: `200px`,
-        maxHeight: `100%`,
         marginLeft: `auto`,
         marginRight: `auto`,
     },
@@ -42,7 +49,22 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     boxFile: {
         display: `none`,
-    }
+    },
+    tapContainer: {
+        width: `100%`,
+        height: `100%`,
+        position: `absolute`,
+        display: `flex`,
+        justifyContent: `flex-end`,
+        alignItems: `start`,
+    },
+    selectionBox: {
+        width: `100%`,
+        height: `100%`,
+        position: `absolute`,
+    },
+    clearIcon: {
+    },
 }),
 );
 
@@ -69,12 +91,13 @@ export function ImageList(props: any) {
 
     function changeFile(event: any) {
         event.preventDefault();
+
         const files = event.target.files;
         imageFiles.unshift(...files);
         imageFiles.forEach((imageFile, index) => {
             readFile(index);
         });
-        setImageFiles(imageFiles);
+        setImageFiles([...imageFiles]);
         props.callback.onFileListUpdated(imageFiles)
     }
 
@@ -95,12 +118,19 @@ export function ImageList(props: any) {
         fileReader.readAsDataURL(imageFiles[index]);
     };
 
-    const createPreviewImage = (image: string, classes, onClick: () => void) => {
+    const createPreviewImage = (image: string, classes, onClick: (event: any) => void, onDelete: (event: any) => void) => {
         return (
-            <Container className={classes.imageContainer} onClick={onClick}>
-                <img className={classes.image} src={image} />
-            </Container>
-
+            <Box className={classes.imageBoxContainer}>
+                <Container className={classes.imageContainer}>
+                    <img className={classes.image} src={image} />
+                </Container>
+                <Box className={classes.tapContainer} >
+                    <Box className={classes.selectionBox} onClick={onClick} />
+                    <IconButton className={classes.clearIcon} color="inherit" onClick={onDelete}>
+                        <ClearIcon />
+                    </IconButton>
+                </Box>
+            </Box>
         )
     }
 
@@ -112,11 +142,29 @@ export function ImageList(props: any) {
         return (
             previewImages.map((image, index: number) => {
                 const file = imageFiles[index];
-                const onSelect = () => {
+                const onSelect = (event: any) => {
+                    event.preventDefault();
+
                     callback.onFileSelected(file);
                 };
+                const onDelete = (event: any) => {
+                    event.preventDefault();
+
+                    const index = imageFiles.indexOf(file);
+                    if (index == -1) {
+                        return;
+                    }
+
+                    imageFiles.splice(index, 1);
+                    previewImages.splice(index, 1);
+
+                    setImageFiles([...imageFiles]);
+                    setPreviewImages([...previewImages])
+
+                    props.callback.onFileListUpdated(imageFiles)
+                };
                 if (typeof image === 'string') {
-                    return createPreviewImage(image, classes, onSelect);
+                    return createPreviewImage(image, classes, onSelect, onDelete);
                 }
             })
         )
@@ -125,9 +173,12 @@ export function ImageList(props: any) {
     return (
         <div className={classes.root}>
             <GridList className={classes.gridList}>
-                <Container onClick={showFileDialog} className={classes.imageContainer}>
-                    <img className={classes.imagePlaceholder} src={add_photo_alternate_black} />
-                </Container>
+
+                <Box className={classes.imageBoxContainer}>
+                    <Box className={classes.imageContainer} onClick={showFileDialog}>
+                        <img className={classes.imagePlaceholder} src={add_photo_alternate_black} />
+                    </Box>
+                </Box>
 
                 {createPreviewImages(classes, props.callback)}
                 <input
