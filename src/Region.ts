@@ -38,3 +38,15 @@ export class Region {
         return Math.min(l, t, r, b)
     }
 }
+
+export function convertRegionsToPathRegions(regions: Array<Region>) {
+    return regions.map((region) => {
+      return {
+        "category_id": region.categoryId,
+        "label": region.label,
+        "order": 0,
+        "lines": region.rectangle.toLines()
+      }
+    });
+  }
+  

@@ -1,5 +1,5 @@
 import { Rectangle } from '../Rectangle';
-import { Region } from '../Region';
+import { convertRegionsToPathRegions, Region } from '../Region';
 import { Category } from '../Category';
 import { Label } from '../Label';
 
@@ -79,6 +79,7 @@ export async function fetchPageRegions(hashes: {}) {
     .catch((e) => { throw Error(e); })
     .then(handleErrors);
   const jsonObj = await response.json();
+
   const regions = jsonObj['regions'].map((regionObj: any) => {
     const categoryId = regionObj['category_id'];
     const label = regionObj['label'];
@@ -108,25 +109,18 @@ export async function fetchPageRegions(hashes: {}) {
 }
 
 export async function submitPageRegions(idempotencyKey: string, hashes: {}, regions: Array<Region>) {
-  console.log(hashes)
-  const regionsObj = regions.map((region) => {
-    console.log(`categoryId: ${region.categoryId}`)
-    return {
-      "category_id": region.categoryId,
-      "label": region.label,
-      "order": 0,
-      "lines": region.rectangle.toLines()
-    }
-  });
+
+  const regionsObj = convertRegionsToPathRegions(regions);
   const jsonObj = {
-    "dhash8": hashes["dhash8"],
-    "dhash12": hashes["dhash12"],
-    "dhash16": hashes["dhash16"],
-    "regions": regionsObj
-  };
+        "image_ids": {
+          "dhash8": hashes["dhash8"],
+          "dhash12": hashes["dhash12"],
+          "dhash16": hashes["dhash16"],
+        },
+        "regions": regionsObj
+      };
 
   const body: string = JSON.stringify(jsonObj);
-  console.log(body);
 
   const response = await fetch(BASE_API_ENDPOINT + "/page", {
     method: 'POST',

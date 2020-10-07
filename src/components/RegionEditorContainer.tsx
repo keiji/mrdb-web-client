@@ -7,7 +7,7 @@ import { Callback as RegionEditorCallback } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
 
-import { Region } from '../Region';
+import { convertRegionsToPathRegions, Region } from '../Region';
 import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
@@ -55,7 +55,8 @@ function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
     const idempotencyKey = uuidv4();
-    let hashes = {};
+
+    const [hashes, setHashes] = useState<{}>()
 
     const [categoryList, setCategoryList] = useState<Array<Category>>()
     const [selectedCategory, setSelectedCategory] = useState<Category>()
@@ -121,11 +122,12 @@ function RegionEditorContainer(props: any) {
     const getRegions = async () => {
         setRegionList(new Array<Region>());
 
-        hashes = await apis.fetchHash(props.selectedFile);
+        const h = await apis.fetchHash(props.selectedFile);
+        setHashes(h);
 
         try {
-            const result = await apis.fetchPageRegions(hashes);
-            if (hashes === result.hashes) {
+            const result = await apis.fetchPageRegions(h);
+            if (h === result.hashes) {
                 setRegionList(result.regions);
             }
         } catch (error) {
@@ -139,17 +141,54 @@ function RegionEditorContainer(props: any) {
         getRegions();
     }, [props.selectedFile]);
 
-    const submitRegions = async (regions: Array<Region>) => {
+    const submitRegions = async (regions: Array<Region> | null | undefined) => {
         if (!hashes) {
             return;
         }
-        if (!regionList) {
+        if (!regions) {
             return;
         }
-        await apis.submitPageRegions(idempotencyKey, hashes, regionList);
+        await apis.submitPageRegions(idempotencyKey, hashes, regions);
 
         setSnackbarText("Submit completed.");
         setState({ ...state, open: true });
+    };
+
+    const saveRegions = async (regions: Array<Region> | null | undefined) => {
+        console.log(hashes);
+
+        if (!hashes) {
+            return;
+        }
+        if (!regions) {
+            return;
+        }
+
+
+        console.log(hashes);
+
+        const regionsObj = convertRegionsToPathRegions(regions);
+        const jsonObj = {
+            "file": props.selectedFile.name,
+            "image_ids": {
+                "dhash8": hashes["dhash8"],
+                "dhash12": hashes["dhash12"],
+                "dhash16": hashes["dhash16"],
+            },
+            "regions": regionsObj
+        };
+
+        const blob = new Blob([JSON.stringify(jsonObj, null, '  ')], { type: 'application\/json' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+        a.download = props.selectedFile.name + '.json';
+        a.href = url;
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url);
     };
 
     const title = () => {
@@ -166,10 +205,10 @@ function RegionEditorContainer(props: any) {
     const menu = () => {
         return (
             <div className={classes.menu}>
-                <IconButton color="inherit" onClick={() => { submitRegions(props.regionList); }}>
+                <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
                     <PublishIcon />
                 </IconButton>
-                <IconButton color="inherit">
+                <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
                     <SaveIcon />
                 </IconButton>
                 <IconButton edge="end" color="inherit">
