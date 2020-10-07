@@ -171,7 +171,7 @@ function App() {
             And image files will be saved and used to improve services.<br />
             ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.<br />
             <br />
-            <strong>WE DO NOT REDISTRIBUTE YOUR IMAGE FILES TO THE OTHERS.</strong>
+            We <strong>DO NOT</strong> redistribute your image files to the others.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
