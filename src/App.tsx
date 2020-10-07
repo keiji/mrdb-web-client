@@ -9,9 +9,11 @@ import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import ImportExportIcon from '@material-ui/icons/ImportExport';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
+import * as apis from "./api/crdbApi";
 
 // https://techracho.bpsinc.jp/hachi8833/2019_10_09/80851
 const KEY_AGREEMENT = 'agreement';
@@ -142,6 +144,39 @@ function App() {
     }
   }
 
+  const getHashList = async (fileList: Array<File>) => {
+    const result :{[key: string]: {}} = {};
+
+    for (const f of fileList) {
+      const imageIds = await apis.fetchHash(f);
+      result[f.name] = {
+        "image_ids": imageIds,
+        "url": apis.fetchPageRegionsUrl(imageIds)
+      };
+    }
+    return result;
+  }
+
+  const exportRegions = async () => {
+    if (!fileList) {
+      return;
+    }
+
+    const hashList = await getHashList(fileList)
+
+    const blob = new Blob([JSON.stringify(hashList, null, '  ')], { type: 'application\/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.download = 'export.json';
+    a.href = url;
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(url);
+  }
+
   const onKeyDownListener = (event) => {
     if (event.key == ' ') {
       event.preventDefault();
@@ -171,7 +206,7 @@ function App() {
             And image files will be saved and used to improve services.<br />
             ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.<br />
             <br />
-            We <strong>DO NOT</strong> redistribute your image files to the others.
+            We <strong>DO NOT</strong> redistribute your image files.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -186,6 +221,9 @@ function App() {
     );
   }
   const showButtons = () => {
+    if (!fileList || fileList.length == 0) {
+      return (<Box></Box>);
+    }
     return (
       <Box>
         <IconButton color="inherit" onClick={prevFile}>
@@ -193,6 +231,9 @@ function App() {
         </IconButton>
         <IconButton color="inherit" onClick={nextFile}>
           <NavigateNextIcon />
+        </IconButton>
+        <IconButton color="inherit" onClick={exportRegions}>
+          <SaveAltIcon />
         </IconButton>
       </Box>
     );

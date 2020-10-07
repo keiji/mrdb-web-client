@@ -13,11 +13,11 @@ import { Category } from '../Category';
 import { Label } from '../Label';
 
 import PublishIcon from '@material-ui/icons/Publish';
-import RestoreIcon from '@material-ui/icons/Restore';
 import SaveIcon from '@material-ui/icons/Save';
 
 import { v4 as uuidv4 } from 'uuid';
 
+const APP_TITLE = "CRDB - Comic Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: `100%`,
@@ -164,9 +164,6 @@ function RegionEditorContainer(props: any) {
             return;
         }
 
-
-        console.log(hashes);
-
         const regionsObj = convertRegionsToPathRegions(regions);
         const jsonObj = {
             "file": props.selectedFile.name,
@@ -193,7 +190,7 @@ function RegionEditorContainer(props: any) {
 
     const title = () => {
         if (!props.selectedFile) {
-            return "CRDB";
+            return APP_TITLE;
         }
         return props.selectedFile.name
     }
@@ -203,6 +200,13 @@ function RegionEditorContainer(props: any) {
     }
 
     const menu = () => {
+        if (!regionList || regionList.length == 0) {
+            return (
+                <div className={classes.menu}>
+                </div>
+            );
+        }
+
         return (
             <div className={classes.menu}>
                 <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
@@ -211,9 +215,9 @@ function RegionEditorContainer(props: any) {
                 <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
                     <SaveIcon />
                 </IconButton>
-                <IconButton edge="end" color="inherit">
+                {/* <IconButton edge="end" color="inherit">
                     <RestoreIcon />
-                </IconButton>
+                </IconButton> */}
             </div>
         );
     }

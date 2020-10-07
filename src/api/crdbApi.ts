@@ -3,7 +3,7 @@ import { convertRegionsToPathRegions, Region } from '../Region';
 import { Category } from '../Category';
 import { Label } from '../Label';
 
-const BASE_API_ENDPOINT = 'https://free-crdb.keiji.dev/api/v1'
+const BASE_API_ENDPOINT = 'https://crdb.keiji.dev/api/v1'
 
 export async function fetchHash(imageFile: File) {
   const formData = new FormData();
@@ -74,8 +74,12 @@ function verticalPoints(lines: Array<{}>): Array<number> {
   return points;
 }
 
-export async function fetchPageRegions(hashes: {}) {
-  const response = await fetch(BASE_API_ENDPOINT + "/page/" + hashes['dhash8'])
+export function fetchPageRegionsUrl(imageIds: {}) {
+  return BASE_API_ENDPOINT + "/page/" + imageIds['dhash8'];
+}
+
+export async function fetchPageRegions(imageIds: {}) {
+  const response = await fetch(fetchPageRegionsUrl(imageIds))
     .catch((e) => { throw Error(e); })
     .then(handleErrors);
   const jsonObj = await response.json();
@@ -103,7 +107,7 @@ export async function fetchPageRegions(hashes: {}) {
   });
 
   return {
-    hashes: hashes,
+    hashes: imageIds,
     regions: regions
   };
 }
@@ -112,13 +116,13 @@ export async function submitPageRegions(idempotencyKey: string, hashes: {}, regi
 
   const regionsObj = convertRegionsToPathRegions(regions);
   const jsonObj = {
-        "image_ids": {
-          "dhash8": hashes["dhash8"],
-          "dhash12": hashes["dhash12"],
-          "dhash16": hashes["dhash16"],
-        },
-        "regions": regionsObj
-      };
+    "image_ids": {
+      "dhash8": hashes["dhash8"],
+      "dhash12": hashes["dhash12"],
+      "dhash16": hashes["dhash16"],
+    },
+    "regions": regionsObj
+  };
 
   const body: string = JSON.stringify(jsonObj);
 
