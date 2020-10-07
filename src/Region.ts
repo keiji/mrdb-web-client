@@ -45,7 +45,7 @@ export function convertRegionsToPathRegions(regions: Array<Region>) {
         "category_id": region.categoryId,
         "label": region.label,
         "order": 0,
-        "lines": region.rectangle.toLines()
+        "points": region.rectangle.toPoints()
       }
     });
   }

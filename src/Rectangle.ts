@@ -53,31 +53,23 @@ export class Rectangle {
         return `left: ${this.left}, top: ${this.top}, right: ${this.right}, bottom: ${this.bottom}`
     }
 
-    toLines(): Array<{}> {
+    toPoints(): Array<{}> {
         return [
             {
-                "from_x": this.left,
-                "to_x": this.right,
-                "from_y": this.top,
-                "to_y": this.top
+                "x": this.left,
+                "y": this.top,
             },
             {
-                "from_x": this.right,
-                "to_x": this.right,
-                "from_y": this.top,
-                "to_y": this.bottom
+                "x": this.right,
+                "y": this.top,
             },
             {
-                "from_x": this.right,
-                "to_x": this.left,
-                "from_y": this.bottom,
-                "to_y": this.bottom
+                "x": this.right,
+                "y": this.bottom,
             },
             {
-                "from_x": this.left,
-                "to_x": this.left,
-                "from_y": this.bottom,
-                "to_y": this.top
+                "x": this.left,
+                "y": this.bottom,
             }
         ];
 

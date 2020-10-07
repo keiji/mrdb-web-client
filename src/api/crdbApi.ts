@@ -58,20 +58,16 @@ export async function fetchLabels(categoryId: number) {
   return labels;
 }
 
-function horizontalPoints(lines: Array<{}>): Array<number> {
-  const points: Array<number> = lines.map((line: any) => {
-    return [line['from_x'] as number, line['to_x'] as number]
-  }).flat();
-
-  return points;
+function horizontalPoints(points: Array<{}>): Array<number> {
+  return points.map((point: any) => {
+    return point['x'] as number
+  });
 }
 
-function verticalPoints(lines: Array<{}>): Array<number> {
-  const points: Array<number> = lines.map((line: any) => {
-    return [line['from_y'] as number, line['to_y'] as number]
-  }).flat();
-
-  return points;
+function verticalPoints(points: Array<{}>): Array<number> {
+  return points.map((point: any) => {
+    return point['y'] as number
+  });
 }
 
 export function fetchPageRegionsUrl(imageIds: {}) {
@@ -88,8 +84,8 @@ export async function fetchPageRegions(imageIds: {}) {
     const categoryId = regionObj['category_id'];
     const label = regionObj['label'];
 
-    const horizontalPointList = horizontalPoints(regionObj['lines']);
-    const verticalPointList = verticalPoints(regionObj['lines']);
+    const horizontalPointList = horizontalPoints(regionObj['points']);
+    const verticalPointList = verticalPoints(regionObj['points']);
 
     const left = Math.min(...horizontalPointList);
     const top = Math.min(...verticalPointList);
