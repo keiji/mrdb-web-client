@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography } from '@material-ui/core';
+import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography, Tooltip } from '@material-ui/core';
 
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
@@ -9,7 +9,6 @@ import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import ImportExportIcon from '@material-ui/icons/ImportExport';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
@@ -146,7 +145,7 @@ function App() {
   }
 
   const getHashList = async (fileList: Array<File>) => {
-    const result :{[key: string]: {}} = {};
+    const result: { [key: string]: {} } = {};
 
     for (const f of fileList) {
       const imageIds = await apis.fetchHash(f);
@@ -227,18 +226,29 @@ function App() {
     }
     return (
       <Box>
-        <IconButton color="inherit" onClick={prevFile}>
-          <NavigateBeforeIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={nextFile}>
-          <NavigateNextIcon />
-        </IconButton>
-        <IconButton color="inherit" onClick={exportRegions}>
-          <SaveAltIcon />
-        </IconButton>
+        <Tooltip title="Prev file" aria-label="prev-file">
+          <IconButton color="inherit" onClick={prevFile}>
+            <NavigateBeforeIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Next file" aria-label="next-file">
+          <IconButton color="inherit" onClick={nextFile}>
+            <NavigateNextIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Export all image-IDs" aria-label="export-image-ids">
+          <IconButton color="inherit" onClick={exportRegions}>
+            <SaveAltIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
     );
   }
+
+  const toggleDrawerTitle = () => {
+    return imageListShown ? "Close (Space)" : "Open (Space)";
+  }
+
   return (
     <div className="App" ref={rootElement} onKeyDown={onKeyDownListener} tabIndex={-1}>
       <CssBaseline />
@@ -274,9 +284,11 @@ function App() {
       <Paper elevation={1} className={clsx(classes.drawerHeaderPaper, classes.drawerHeader, {
         [classes.drawerHeaderShift]: imageListShown,
       })}>
-        <IconButton onClick={toggleDrawer} color="inherit" aria-label="open drawer">
-          {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
-        </IconButton>
+        <Tooltip title={toggleDrawerTitle()} aria-label="toggle-drawer">
+          <IconButton onClick={toggleDrawer} color="inherit" aria-label="open drawer">
+            {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
+          </IconButton>
+        </Tooltip>
 
         <div className={classes.grow}>
           <Typography variant='caption'>Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)</Typography>

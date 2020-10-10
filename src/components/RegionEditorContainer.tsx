@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -12,7 +12,7 @@ import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
 
-import PublishIcon from '@material-ui/icons/Publish';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import SaveIcon from '@material-ui/icons/Save';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -150,7 +150,7 @@ function RegionEditorContainer(props: any) {
         }
         await apis.submitPageRegions(idempotencyKey, hashes, regions);
 
-        setSnackbarText("Submit completed.");
+        setSnackbarText("Save completed.");
         setState({ ...state, open: true });
     };
 
@@ -209,12 +209,16 @@ function RegionEditorContainer(props: any) {
 
         return (
             <div className={classes.menu}>
-                <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
-                    <PublishIcon />
-                </IconButton>
-                <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
-                    <SaveIcon />
-                </IconButton>
+                <Tooltip title="Save to server" aria-label="submit-to-server">
+                    <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
+                        <SaveIcon />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Export region data" aria-label="export-regions">
+                    <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
+                        <SaveAltIcon />
+                    </IconButton>
+                </Tooltip>
                 {/* <IconButton edge="end" color="inherit">
                     <RestoreIcon />
                 </IconButton> */}
