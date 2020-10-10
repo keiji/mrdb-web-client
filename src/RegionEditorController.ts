@@ -30,6 +30,14 @@ export class RegionEditorController {
     }
   });
 
+  private _focusedRegion: Region | null = null;
+  set focusedRegion(region: Region | null) {
+    this._focusedRegion = region;
+  }
+  get focusedRegion(): Region | null {
+    return this._focusedRegion;
+  }
+
   private _editingRegion: Region | null = null;
   set editingRegion(region: Region | null) {
     this._editingRegion = region;
@@ -47,9 +55,11 @@ export class RegionEditorController {
     return this._selectedRegion;
   }
 
-  onMouseDownListener = (event) => {
-    const x = event.offsetX / this.image.width;
-    const y = event.offsetY / this.image.height;
+  private clicking = false;
+
+  nearestRegion(offsetX: number, offsetY: number) {
+    const x = offsetX / this.image.width;
+    const y = offsetY / this.image.height;
 
     const filteredRegion = this.regionList.filter((region) => {
       return region.containsPoint(x, y);
@@ -59,7 +69,7 @@ export class RegionEditorController {
     });
 
     // sort by neighbor score.
-    const sortedRegion = filteredRegion.sort((a, b) => {
+    const sortedRegions = filteredRegion.sort((a, b) => {
       const scoreA = a.neighborScore(x, y);
       const scoreB = b.neighborScore(x, y);
       if (scoreA < scoreB) {
@@ -69,31 +79,48 @@ export class RegionEditorController {
       }
       return 0;
     });
+    return sortedRegions;
+  }
 
-    if (sortedRegion.length > 0) {
-      this.selectedRegion = sortedRegion[0];
+  onMouseDownListener = (event) => {
+    this.clicking = true;
+    const nearestRegionArray = this.nearestRegion(event.offsetX, event.offsetY);
+
+    if (nearestRegionArray.length > 0) {
+      this.selectedRegion = nearestRegionArray[0];
       this.callback.onSelectedRegion(this.selectedRegion);
     } else {
       this.selectedRegion = null;
-      this.editingRegion = this.createRegion(x, y);
+      this.editingRegion = this.createRegion(event.offsetX, event.offsetY);
     }
     this.redraw();
   };
 
   onMouseMoveListener = (event) => {
-    if (this.editingRegion === null) {
+    if (this.clicking && this.editingRegion !== null) {
+      const x = event.offsetX / this.image.width;
+      const y = event.offsetY / this.image.height;
+
+      this.editingRegion.rectangle.right = x;
+      this.editingRegion.rectangle.bottom = y;
+      this.redraw()
+      return;
+
+    } else if (!this.clicking) {
+      const nearestRegionArray = this.nearestRegion(event.offsetX, event.offsetY);
+      if (nearestRegionArray.length > 0) {
+        this.focusedRegion = nearestRegionArray[0];
+      } else {
+        this.focusedRegion = null;
+      }
+      this.redraw()
       return;
     }
-
-    const x = event.offsetX / this.image.width;
-    const y = event.offsetY / this.image.height;
-
-    this.editingRegion.rectangle.right = x;
-    this.editingRegion.rectangle.bottom = y;
-    this.redraw()
   }
 
   onMouseUpListener = (event: Event) => {
+    this.clicking = false;
+
     const region = this.editingRegion
     if (region) {
       region.rectangle.validate();
@@ -143,7 +170,7 @@ export class RegionEditorController {
       this.selectedRegion.label = parseInt(event.key);
       this.callback.onChangedLabel(this.selectedRegion, this.regionList)
       this.redraw();
-    } else if(event.key == 'Escape') {
+    } else if (event.key == 'Escape') {
       this.editingRegion = null;
       this.redraw();
     }
@@ -177,7 +204,10 @@ export class RegionEditorController {
     this.canvas.removeEventListener("keydown", this.onKeyDownListener);
   }
 
-  createRegion(x: number, y: number) {
+  createRegion(offsetX: number, offsetY: number) {
+    const x = offsetX / this.image.width;
+    const y = offsetY / this.image.height;
+
     const editingRectangle = new Rectangle();
     editingRectangle.left = x;
     editingRectangle.right = x;
@@ -251,6 +281,9 @@ export class RegionEditorController {
       const rect = region.rectangle;
       if (region == this.selectedRegion) {
         ctx.strokeStyle = "#00FF00";
+      } else if(region == this.focusedRegion) {
+        console.log('try focusing2.');
+        ctx.strokeStyle = "#0000FF";
       } else {
         ctx.strokeStyle = "#666666";
       }
