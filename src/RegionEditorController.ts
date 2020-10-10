@@ -141,6 +141,9 @@ export class RegionEditorController {
       this.selectedRegion.label = parseInt(event.key);
       this.callback.onChangedLabel(this.selectedRegion, this.regionList)
       this.redraw();
+    } else if(event.key == 'Escape') {
+      this.editingRegion = null;
+      this.redraw();
     }
   }
 
