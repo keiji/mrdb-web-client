@@ -173,9 +173,44 @@ export class RegionEditorController {
     } else if (event.key == 'Escape') {
       this.editingRegion = null;
       this.redraw();
+    } else if (event.key == 'Enter') {
+      if (event.shiftKey) {
+        this.selectPrevRegion();
+      } else {
+        this.selectNextRegion();
+      }
+      this.redraw();
+    } else {
+      console.log(event.key);
     }
   }
 
+  moveRegion(count: number) {
+    if (this.regionList.length == 0) {
+      return;
+    }
+
+    if (this.selectedRegion === null) {
+      this.selectedRegion = this.regionList[0];
+      return;
+    }
+
+    const index = this.regionList.indexOf(this.selectedRegion);
+    if (index > -1) {
+      const toIndex = index + count;
+      if (toIndex >= 0 && toIndex < this.regionList.length) {
+        this.selectedRegion = this.regionList[toIndex];
+      }
+    }
+  }
+
+  selectPrevRegion() {
+    this.moveRegion(-1);
+  }
+
+  selectNextRegion() {
+    this.moveRegion(+1);
+  }
   constructor(
     canvas: HTMLCanvasElement,
     image: HTMLImageElement,
@@ -281,7 +316,7 @@ export class RegionEditorController {
       const rect = region.rectangle;
       if (region == this.selectedRegion) {
         ctx.strokeStyle = "#00FF00";
-      } else if(region == this.focusedRegion) {
+      } else if (region == this.focusedRegion) {
         console.log('try focusing2.');
         ctx.strokeStyle = "#0000FF";
       } else {
