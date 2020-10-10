@@ -111,15 +111,17 @@ export class RegionEditorController {
   }
 
   onKeyDownListener = (event) => {
-    console.log(`keydown ${event.key}`)
+    event.preventDefault();
 
     if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' || event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+      const dist = TICK * (event.shiftKey ? 0.1 : 1.0);
+
       if (event.altKey) {
-        this.shrink(event.key);
-      } else if (event.shiftKey) {
-        this.expand(event.key);
+        this.shrink(event.key, dist);
+      } else if (event.metaKey) {
+        this.expand(event.key, dist);
       } else {
-        this.move(event.key);
+        this.move(event.key, dist);
       }
       this.redraw();
 
@@ -184,39 +186,39 @@ export class RegionEditorController {
     return new Region(this.category.id, this.label, editingRectangle)
   }
 
-  shrink(key: string) {
+  shrink(key: string, dist: number) {
     if (key.endsWith('Left')) {
-      this.deform(0, 0, -TICK, 0);
+      this.deform(0, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, 0, 0, -TICK);
+      this.deform(0, 0, 0, -dist);
     } else if (key.endsWith('Right')) {
-      this.deform(TICK, 0, 0, 0);
+      this.deform(dist, 0, 0, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, TICK, 0, 0);
+      this.deform(0, dist, 0, 0);
     }
   }
 
-  expand(key: string) {
+  expand(key: string, dist: number) {
     if (key.endsWith('Left')) {
-      this.deform(-TICK, 0, 0, 0);
+      this.deform(-dist, 0, 0, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, -TICK, 0, 0);
+      this.deform(0, -dist, 0, 0);
     } else if (key.endsWith('Right')) {
-      this.deform(0, 0, TICK, 0);
+      this.deform(0, 0, dist, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, 0, 0, TICK);
+      this.deform(0, 0, 0, dist);
     }
   }
 
-  move(key: string) {
+  move(key: string, dist: number) {
     if (key.endsWith('Left')) {
-      this.deform(-TICK, 0, -TICK, 0);
+      this.deform(-dist, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, -TICK, 0, -TICK);
+      this.deform(0, -dist, 0, -dist);
     } else if (key.endsWith('Right')) {
-      this.deform(TICK, 0, TICK, 0);
+      this.deform(dist, 0, dist, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, TICK, 0, TICK);
+      this.deform(0, dist, 0, dist);
     }
   }
 
