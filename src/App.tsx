@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button } from '@material-ui/core';
+import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography } from '@material-ui/core';
 
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
@@ -46,6 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     grow: {
       flexGrow: 1,
+      textAlign: `center`,
     },
     drawerHeaderShift: {
       marginBottom: `calc(${drawerHeight}px)`,
@@ -277,7 +278,9 @@ function App() {
           {!imageListShown ? <OpenDrawerIcon /> : <CloseDrawerIcon />}
         </IconButton>
 
-        <div className={classes.grow} />
+        <div className={classes.grow}>
+          <Typography>Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)</Typography>
+        </div>
 
         {showButtons()}
       </Paper>
