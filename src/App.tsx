@@ -271,7 +271,7 @@ function App() {
         </main>
       </div>
 
-      <Paper className={clsx(classes.drawerHeaderPaper, classes.drawerHeader, {
+      <Paper elevation={1} className={clsx(classes.drawerHeaderPaper, classes.drawerHeader, {
         [classes.drawerHeaderShift]: imageListShown,
       })}>
         <IconButton onClick={toggleDrawer} color="inherit" aria-label="open drawer">
