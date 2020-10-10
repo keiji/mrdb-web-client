@@ -279,7 +279,7 @@ function App() {
         </IconButton>
 
         <div className={classes.grow}>
-          <Typography>Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)</Typography>
+          <Typography variant='caption'>Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)</Typography>
         </div>
 
         {showButtons()}
