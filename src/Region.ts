@@ -37,6 +37,10 @@ export class Region {
         console.log(`neighborScore l:${l}, t:${t}, r:${r}, b:${b}`)
         return Math.min(l, t, r, b)
     }
+
+    deepCopy() : Region {
+        return new Region(this.categoryId, this.label, this.rectangle.deepCopy());
+    }
 }
 
 export function convertRegionsToPathRegions(regions: Array<Region>) {

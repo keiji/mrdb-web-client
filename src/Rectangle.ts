@@ -72,7 +72,15 @@ export class Rectangle {
                 "y": this.bottom,
             }
         ];
+    }
 
+    deepCopy(): Rectangle {
+        const rectangle = new Rectangle();
+        rectangle.left = this.left;
+        rectangle.top = this.top;
+        rectangle.right = this.right;
+        rectangle.bottom = this.bottom;
 
+        return rectangle;
     }
 }

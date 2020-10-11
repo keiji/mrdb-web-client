@@ -3,7 +3,7 @@ import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
 import { AppBar, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
-import { Callback as RegionEditorCallback } from '../RegionEditorController';
+import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
 
@@ -64,6 +64,8 @@ function RegionEditorContainer(props: any) {
     const [labelList, setLabelList] = useState<Array<Label>>()
 
     const [regionList, setRegionList] = useState<Array<Region>>()
+    const [historyList, setHistoryList] = useState<Array<EditHistory>>()
+
     const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
 
     const [snackbarText, setSnackbarText] = useState<string>("Hello")
@@ -87,6 +89,9 @@ function RegionEditorContainer(props: any) {
         }
         onChangedLabel(changedRegion: Region, regionList: Array<Region>) {
             setRegionList([...regionList]);
+        }
+        onHistoryUpdated(historyList: Array<EditHistory>) {
+            setHistoryList([...historyList]);
         }
     })();
 
