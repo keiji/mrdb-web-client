@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Box, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -14,8 +14,10 @@ import { Label } from '../Label';
 
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import SaveIcon from '@material-ui/icons/Save';
+import UndoIcon from '@material-ui/icons/Undo';
 
 import { v4 as uuidv4 } from 'uuid';
+import { Undo } from '@material-ui/icons';
 
 const APP_TITLE = "CRDB - Comic Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -204,6 +206,10 @@ function RegionEditorContainer(props: any) {
         setState({ ...state, open: false });
     }
 
+    const undo = () => {
+
+    }
+
     const menu = () => {
         if (!regionList || regionList.length == 0) {
             return (
@@ -212,8 +218,26 @@ function RegionEditorContainer(props: any) {
             );
         }
 
+        const showUndoMenu = () => {
+            if (!historyList) {
+                return (<Box></Box>);
+            }
+            if (historyList.length == 0) {
+                return (<Box></Box>);
+            }
+
+            return (
+                <Tooltip title="Undo (Ctrl + Z)" aria-label="undo">
+                    <IconButton color="inherit" onClick={() => { undo(); }}>
+                        <UndoIcon />
+                    </IconButton>
+                </Tooltip>
+            );
+        };
         return (
             <div className={classes.menu}>
+                {showUndoMenu()}
+
                 <Tooltip title="Save to server" aria-label="submit-to-server">
                     <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
                         <SaveIcon />
@@ -224,9 +248,6 @@ function RegionEditorContainer(props: any) {
                         <SaveAltIcon />
                     </IconButton>
                 </Tooltip>
-                {/* <IconButton edge="end" color="inherit">
-                    <RestoreIcon />
-                </IconButton> */}
             </div>
         );
     }
