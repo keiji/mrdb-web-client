@@ -67,59 +67,82 @@ export class RegionEditorController {
     return this._selectedRegion;
   }
 
-  private clicking = false;
+  private imageWidth = 0;
+  private imageHeight = 0;
 
-  nearestRegion(offsetX: number, offsetY: number) {
-    const x = offsetX / this.image.width;
-    const y = offsetY / this.image.height;
+  private marginTop = 0;
+  private marginBottom = 0;
+  private marginLeft = 0;
+  private marginRight = 0;
 
-    const filteredRegion = this.regionList.filter((region) => {
-      return region.containsPoint(x, y);
-    }).filter((region) => {
-      const score = region.neighborScore(x, y);
-      return score < NEIGHBOR_THRESHOLD;
-    });
+  calcMargin(
+    minMarginPixel: number
+  ) {
+    const ratio = Math.min(
+      this.canvas.width / this.image.width,
+      this.canvas.height / this.image.height
+    );
 
-    // sort by neighbor score.
-    const sortedRegions = filteredRegion.sort((a, b) => {
-      const scoreA = a.neighborScore(x, y);
-      const scoreB = b.neighborScore(x, y);
-      if (scoreA < scoreB) {
-        return -1;
-      } else if (scoreA > scoreB) {
-        return 1;
-      }
-      return 0;
-    });
-    return sortedRegions;
+    let marginHorizontal = this.canvas.width - (this.image.width * ratio);
+    let marginVertical = this.canvas.height - (this.image.height * ratio);
+
+    if (marginHorizontal < minMarginPixel * 2) {
+      marginHorizontal = minMarginPixel * 2;
+    }
+    if (marginVertical < minMarginPixel * 2) {
+      marginVertical = minMarginPixel * 2;
+    }
+
+    this.marginTop = marginVertical / 2;
+    this.marginBottom = marginVertical - this.marginTop;
+    this.marginLeft = marginHorizontal / 2;
+    this.marginRight = marginHorizontal - this.marginLeft;
+
+    this.imageWidth = this.canvas.width - marginHorizontal;
+    this.imageHeight = this.canvas.height - marginVertical;
+  };
+
+  calcXRatio(offsetX: number) {
+    return Math.max(0.0, Math.min(1.0, (offsetX - this.marginLeft) / this.imageWidth));
   }
+
+  calcYRatio(offsetY: number) {
+    return Math.max(0.0, Math.min(1.0, (offsetY - this.marginTop) / this.imageHeight));
+  }
+
+  private clicking = false;
 
   onMouseDownListener = (event) => {
     this.clicking = true;
-    const nearestRegionArray = this.nearestRegion(event.offsetX, event.offsetY);
+
+    const x = this.calcXRatio(event.offsetX);
+    const y = this.calcYRatio(event.offsetY);
+
+    const nearestRegionArray = this.nearestRegion(x, y);
 
     if (nearestRegionArray.length > 0) {
       this.selectedRegion = nearestRegionArray[0];
       this.callback.onSelectedRegion(this.selectedRegion);
     } else {
       this.selectedRegion = null;
-      this.editingRegion = this.createRegion(event.offsetX, event.offsetY);
+      this.editingRegion = this.createRegion(x, y);
     }
     this.redraw();
   };
 
   onMouseMoveListener = (event) => {
-    if (this.clicking && this.editingRegion !== null) {
-      const x = event.offsetX / this.image.width;
-      const y = event.offsetY / this.image.height;
 
+    const x = this.calcXRatio(event.offsetX);
+    const y = this.calcYRatio(event.offsetY);
+
+    if (this.clicking && this.editingRegion !== null) {
       this.editingRegion.rectangle.right = x;
       this.editingRegion.rectangle.bottom = y;
       this.redraw()
       return;
 
     } else if (!this.clicking) {
-      const nearestRegionArray = this.nearestRegion(event.offsetX, event.offsetY);
+      const nearestRegionArray = this.nearestRegion(x, y);
       if (nearestRegionArray.length > 0) {
         this.focusedRegion = nearestRegionArray[0];
       } else {
@@ -150,6 +173,28 @@ export class RegionEditorController {
       this.callback.onAddedRegion(this.selectedRegion, this.regionList)
       this.callback.onSelectedRegion(this.selectedRegion)
     }
+  }
+
+  nearestRegion(x: number, y: number) {
+    const filteredRegion = this.regionList.filter((region) => {
+      return region.containsPoint(x, y);
+    }).filter((region) => {
+      const score = region.neighborScore(x, y);
+      return score < NEIGHBOR_THRESHOLD;
+    });
+
+    // sort by neighbor score.
+    const sortedRegions = filteredRegion.sort((a, b) => {
+      const scoreA = a.neighborScore(x, y);
+      const scoreB = b.neighborScore(x, y);
+      if (scoreA < scoreB) {
+        return -1;
+      } else if (scoreA > scoreB) {
+        return 1;
+      }
+      return 0;
+    });
+    return sortedRegions;
   }
 
   onKeyDownListener = (event) => {
@@ -300,10 +345,7 @@ export class RegionEditorController {
     this.canvas.removeEventListener("keydown", this.onKeyDownListener);
   }
 
-  createRegion(offsetX: number, offsetY: number) {
-    const x = offsetX / this.image.width;
-    const y = offsetY / this.image.height;
-
+  createRegion(x: number, y: number) {
     const editingRectangle = new Rectangle();
     editingRectangle.left = x;
     editingRectangle.right = x;
@@ -368,16 +410,19 @@ export class RegionEditorController {
       return;
     }
 
-    ctx.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    ctx.drawImage(
+      this.image,
+      this.marginLeft, this.marginTop,
+      this.imageWidth, this.imageHeight
+    );
 
     if (!this.regionList) {
       return;
     }
 
-    console.log(`regionList: ${this.regionList.length}`);
-
     this.regionList.forEach((region, index) => {
-      const rect = region.rectangle;
       if (region == this.selectedRegion) {
         ctx.strokeStyle = "#00FF00";
       } else if (region == this.focusedRegion) {
@@ -386,27 +431,26 @@ export class RegionEditorController {
       } else {
         ctx.strokeStyle = "#666666";
       }
-      ctx.strokeRect(
-        rect.left * this.image.width,
-        rect.top * this.image.height,
-        rect.width() * this.image.width,
-        rect.height() * this.image.height
-      );
+
+      this.drawRegion(region, ctx);
     })
 
     if (this.editingRegion) {
-      const rect = this.editingRegion.rectangle;
-
       ctx.strokeStyle = "#FF0000";
-      ctx.strokeRect(
-        rect.left * this.image.width,
-        rect.top * this.image.height,
-        rect.width() * this.image.width,
-        rect.height() * this.image.height
-      );
+      this.drawRegion(this.editingRegion, ctx);
     }
   }
 
+  drawRegion(region: Region, ctx: CanvasRenderingContext2D) {
+    const rect = region.rectangle;
+
+    ctx.strokeRect(
+      rect.left * this.imageWidth + this.marginLeft,
+      rect.top * this.imageHeight + this.marginTop,
+      rect.width() * this.imageWidth,
+      rect.height() * this.imageHeight
+    );
+  }
 }
 
 export interface Callback {

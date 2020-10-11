@@ -21,54 +21,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 let regionEditorController: RegionEditorController | null = null;
 
-let canvasMaxWidth = 0;
-let canvasMaxHeight = 0;
-
-function init(canvasContainer: HTMLDivElement) {
-    canvasMaxWidth = canvasContainer.clientWidth;
-    canvasMaxHeight = canvasContainer.clientHeight;
-}
-
-const setCanvasSize = (
-    canvas: HTMLCanvasElement,
-    sizeRatio: [number, number]
-) => {
-    canvas.width = canvasMaxWidth * sizeRatio[0];
-    canvas.height = canvasMaxHeight * sizeRatio[1];
-};
-
-const fitImageAndCanvas = (
-    image: HTMLImageElement,
-    canvas: HTMLCanvasElement
-) => {
-    console.log('fitImageAndCanvas');
-
-    const ratio = Math.min(
-        canvasMaxWidth / image.width,
-        canvasMaxHeight / image.height
-    );
-
-    image.width = Math.round(image.width * ratio);
-    image.height = Math.round(image.height * ratio);
-
-    console.log(image.width)
-    canvas.width = image.width;
-    canvas.height = image.height;
-
-    const marginHorizontal = canvasMaxWidth - image.width;
-    const marginVertical = canvasMaxHeight - image.height;
-
-    const marginTop = marginVertical / 2;
-    const marginBottom = marginVertical - marginTop;
-    const marginLeft = marginHorizontal / 2;
-    const marginRight = marginHorizontal - marginLeft;
-
-    canvas.style.marginTop = `${marginTop}px`;
-    canvas.style.marginBottom = `${marginBottom}px`;
-    canvas.style.marginLeft = `${marginLeft}px`;
-    canvas.style.marginRight = `${marginRight}px`;
-};
-
 export function RegionEditor(props: any) {
     const [cacheImage, setImage] = useState<HTMLImageElement | null>(null);
 
@@ -88,7 +40,6 @@ export function RegionEditor(props: any) {
             }
 
             setImage(image);
-            fitImageAndCanvas(image, canvas.current);
         });
 
     }, [props.selectedFile]);
@@ -121,6 +72,8 @@ export function RegionEditor(props: any) {
                 props.callback
             );
         }
+        regionEditorController.calcMargin(16);
+
         regionEditorController.category = props.selectedCategory;
         regionEditorController.regionList = props.regionList;
         regionEditorController.redraw();
@@ -135,8 +88,8 @@ export function RegionEditor(props: any) {
             return;
         }
 
-        init(canvasContainer.current);
-        setCanvasSize(canvas.current, [1.0, 1.0]);
+        canvas.current.width = canvasContainer.current.clientWidth;
+        canvas.current.height = canvasContainer.current.clientHeight;
 
         if (regionEditorController) {
             regionEditorController.redraw();
@@ -164,10 +117,10 @@ export function RegionEditor(props: any) {
             return;
         }
 
-        init(canvasContainer.current);
-
         if (cacheImage && regionEditorController) {
-            fitImageAndCanvas(cacheImage, canvas.current);
+            canvas.current.width = canvasContainer.current.clientWidth;
+            canvas.current.height = canvasContainer.current.clientHeight;
+            regionEditorController.calcMargin(16);
             regionEditorController.redraw();
         }
     });
