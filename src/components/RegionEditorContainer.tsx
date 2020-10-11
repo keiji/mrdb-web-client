@@ -12,9 +12,9 @@ import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
 
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import SaveIcon from '@material-ui/icons/Save';
 import UndoIcon from '@material-ui/icons/Undo';
+import BackupIcon from '@material-ui/icons/Backup';
 
 import { v4 as uuidv4 } from 'uuid';
 import { Undo } from '@material-ui/icons';
@@ -240,12 +240,12 @@ function RegionEditorContainer(props: any) {
 
                 <Tooltip title="Save to server" aria-label="submit-to-server">
                     <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
-                        <SaveIcon />
+                        <BackupIcon />
                     </IconButton>
                 </Tooltip>
                 <Tooltip title="Export region data" aria-label="export-regions">
                     <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
-                        <SaveAltIcon />
+                        <SaveIcon />
                     </IconButton>
                 </Tooltip>
             </div>
