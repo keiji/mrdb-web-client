@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, Box, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Box, Container, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -280,15 +280,17 @@ function RegionEditorContainer(props: any) {
                     />
                 </Grid>
                 <Grid item xs={4} className={classes.regionList} >
-                    <RegionList
-                        regionList={regionList}
-                        selectedRegion={selectedRegion}
-                        categoryList={categoryList}
-                        selectedCategory={selectedCategory}
-                        labelList={labelList}
-                        callback={regionListCallback}
-                        categorySettingCallback={categorySettingCallback}
-                    />
+                    <Container>
+                        <RegionList
+                            regionList={regionList}
+                            selectedRegion={selectedRegion}
+                            categoryList={categoryList}
+                            selectedCategory={selectedCategory}
+                            labelList={labelList}
+                            callback={regionListCallback}
+                            categorySettingCallback={categorySettingCallback}
+                        />
+                    </Container>
                 </Grid>
 
             </Grid>

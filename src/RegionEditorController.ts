@@ -236,7 +236,7 @@ export class RegionEditorController {
         this.selectNextRegion();
       }
       this.redraw();
-    } else if (event.ctrlKey && event.key == 'z') {
+    } else if ((event.ctrlKey && event.key == 'z') || (event.metaKey && event.key == 'z')) {
       this.restoreEditHistory();
       this.redraw();
     } else {
