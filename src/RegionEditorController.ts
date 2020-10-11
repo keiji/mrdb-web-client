@@ -112,7 +112,7 @@ export class RegionEditorController {
 
   private clicking = false;
 
-  onMouseDownListener = (event) => {
+  onMouseDownListener = (event: MouseEvent) => {
     this.clicking = true;
 
     const x = this.calcXRatio(event.offsetX);
@@ -130,7 +130,7 @@ export class RegionEditorController {
     this.redraw();
   };
 
-  onMouseMoveListener = (event) => {
+  onMouseMoveListener = (event: MouseEvent) => {
 
     const x = this.calcXRatio(event.offsetX);
     const y = this.calcYRatio(event.offsetY);
@@ -153,7 +153,7 @@ export class RegionEditorController {
     }
   }
 
-  onMouseUpListener = (event: Event) => {
+  onMouseUpListener = (event: MouseEvent) => {
     this.clicking = false;
 
     const region = this.editingRegion
