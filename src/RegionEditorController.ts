@@ -5,6 +5,10 @@ import { Region } from './Region';
 const TICK = 0.01;
 const NEIGHBOR_THRESHOLD = 0.005;
 
+const MARKER_LENGTH = 8;
+
+type Mode = 'move' | 'expand' | 'shrink';
+
 export class EditHistory {
   selectedRegion: Region | null
   regionList: Array<Region>
@@ -19,6 +23,8 @@ export class RegionEditorController {
 
   category: Category;
   label = 0;
+
+  private mode: Mode = 'move';
 
   regionList = Array<Region>();
   historyList = Array<EditHistory>();
@@ -215,14 +221,12 @@ export class RegionEditorController {
       } else {
         this.move(event.key, dist);
       }
-      this.redraw();
 
     } else if (event.key == 'Delete' || event.key == 'Clear' || event.key == 'Backspace' || event.key == 'd') {
       if (!this.selectedRegion) {
         return;
       }
       this.deleteRegion(this.selectedRegion);
-      this.redraw();
 
     } else if (!isNaN(parseInt(event.key))) {
       if (!this.selectedRegion) {
@@ -231,23 +235,37 @@ export class RegionEditorController {
       this.addEditHistory();
       this.selectedRegion.label = parseInt(event.key);
       this.callback.onChangedLabel(this.selectedRegion, this.regionList)
-      this.redraw();
     } else if (event.key == 'Escape') {
       this.editingRegion = null;
-      this.redraw();
     } else if (event.key == 'Enter') {
       if (event.shiftKey) {
         this.selectPrevRegion();
       } else {
         this.selectNextRegion();
       }
-      this.redraw();
     } else if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
       this.restoreEditHistory();
-      this.redraw();
+    } else if (event.key == 'Meta') {
+      this.mode = 'expand';
+    } else if (event.key == 'Alt') {
+      this.mode = 'shrink';
     } else {
       console.log(event.key);
     }
+
+    this.redraw();
+  }
+
+  onKeyUpListener = (event) => {
+    event.preventDefault();
+
+    if (event.key == 'Meta' && !event.altKey) {
+      this.mode = 'move';
+    } else if (event.key == 'Alt' && !event.metaKey) {
+      this.mode = 'move';
+    }
+
+    this.redraw();
   }
 
   private restoreEditHistory() {
@@ -262,8 +280,6 @@ export class RegionEditorController {
 
     this.historyList = [...this.historyList.slice(0, lastHistoryIndex)];
     this.callback.onHistoryUpdated(this.historyList);
-
-    console.log(latestHistory.selectedRegion);
 
     this.selectedRegion = latestHistory.selectedRegion;
   }
@@ -341,6 +357,7 @@ export class RegionEditorController {
 
     // https://qiita.com/jay-es/items/cd30c73989659374698a
     canvas.addEventListener("keydown", this.onKeyDownListener);
+    canvas.addEventListener("keyup", this.onKeyUpListener);
   }
 
   destroy() {
@@ -348,6 +365,7 @@ export class RegionEditorController {
     this.canvas.removeEventListener("mousemove", this.onMouseMoveListener);
     this.canvas.removeEventListener("mouseup", this.onMouseUpListener);
     this.canvas.removeEventListener("keydown", this.onKeyDownListener);
+    this.canvas.removeEventListener("keyup", this.onKeyUpListener);
   }
 
   createRegion(x: number, y: number) {
@@ -360,6 +378,8 @@ export class RegionEditorController {
   }
 
   shrink(key: string, dist: number): boolean {
+    this.mode = 'shrink';
+
     if (key.endsWith('Left')) {
       return this.deform(0, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
@@ -373,6 +393,8 @@ export class RegionEditorController {
   }
 
   expand(key: string, dist: number): boolean {
+    this.mode = 'expand';
+
     if (key.endsWith('Left')) {
       return this.deform(-dist, 0, 0, 0);
     } else if (key.endsWith('Up')) {
@@ -387,6 +409,8 @@ export class RegionEditorController {
   }
 
   move(key: string, dist: number): boolean {
+    this.mode = 'move';
+
     if (key.endsWith('Left')) {
       return this.deform(-dist, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
@@ -454,8 +478,8 @@ export class RegionEditorController {
     this.regionList.forEach((region, index) => {
       if (region == this.selectedRegion) {
         ctx.strokeStyle = "#00FF00";
+        this.drawMarkers(region, ctx);
       } else if (region == this.focusedRegion) {
-        console.log('try focusing2.');
         ctx.strokeStyle = "#0000FF";
       } else {
         ctx.strokeStyle = "#666666";
@@ -467,6 +491,68 @@ export class RegionEditorController {
     if (this.editingRegion) {
       ctx.strokeStyle = "#FF0000";
       this.drawRegion(this.editingRegion, ctx);
+    }
+  }
+
+  drawExpandMarkers(region: Region, ctx: CanvasRenderingContext2D) {
+    // top
+    const topX = region.rectangle.centerX * this.imageWidth + this.marginLeft;
+    const topY = region.rectangle.top * this.imageHeight + this.marginTop;
+    ctx.fillRect(topX, topY, 1, -MARKER_LENGTH);
+
+    // left
+    const leftX = region.rectangle.left * this.imageWidth + this.marginLeft;
+    const leftY = region.rectangle.centerY * this.imageHeight + this.marginTop;
+    ctx.fillRect(leftX, leftY, -MARKER_LENGTH, 1);
+
+    // right
+    const rightX = region.rectangle.right * this.imageWidth + this.marginLeft;
+    const rightY = region.rectangle.centerY * this.imageHeight + this.marginTop;
+    ctx.fillRect(rightX, rightY, MARKER_LENGTH, 1);
+
+    // bottom
+    const bottomX = region.rectangle.centerX * this.imageWidth + this.marginLeft;
+    const bottomY = region.rectangle.bottom * this.imageHeight + this.marginTop;
+    ctx.fillRect(bottomX, bottomY, 1, MARKER_LENGTH);
+  }
+
+  drawShrinkMarkers(region: Region, ctx: CanvasRenderingContext2D) {
+    // top
+    const topX = region.rectangle.centerX * this.imageWidth + this.marginLeft;
+    const topY = region.rectangle.top * this.imageHeight + this.marginTop;
+    ctx.fillRect(topX, topY, 1, MARKER_LENGTH);
+
+    // left
+    const leftX = region.rectangle.left * this.imageWidth + this.marginLeft;
+    const leftY = region.rectangle.centerY * this.imageHeight + this.marginTop;
+    ctx.fillRect(leftX, leftY, MARKER_LENGTH, 1);
+
+    // right
+    const rightX = region.rectangle.right * this.imageWidth + this.marginLeft;
+    const rightY = region.rectangle.centerY * this.imageHeight + this.marginTop;
+    ctx.fillRect(rightX, rightY, -MARKER_LENGTH, 1);
+
+    // bottom
+    const bottomX = region.rectangle.centerX * this.imageWidth + this.marginLeft;
+    const bottomY = region.rectangle.bottom * this.imageHeight + this.marginTop;
+    ctx.fillRect(bottomX, bottomY, 1, -MARKER_LENGTH);
+  }
+
+  drawMarkers(region: Region, ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = "#00FF00";
+
+    switch (this.mode) {
+      case "move": {
+        return;
+      }
+      case "expand": {
+        this.drawExpandMarkers(region, ctx);
+        return;
+      }
+      case "shrink": {
+        this.drawShrinkMarkers(region, ctx);
+        return;
+      }
     }
   }
 

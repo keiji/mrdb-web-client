@@ -34,7 +34,6 @@ export class Region {
         const t = Math.abs(this.rectangle.top - y);
         const b = Math.abs(this.rectangle.bottom - y);
 
-        console.log(`neighborScore l:${l}, t:${t}, r:${r}, b:${b}`)
         return Math.min(l, t, r, b)
     }
 
