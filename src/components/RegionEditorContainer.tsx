@@ -95,6 +95,9 @@ function RegionEditorContainer(props: any) {
         onHistoryUpdated(historyList: Array<EditHistory>) {
             setHistoryList([...historyList]);
         }
+        onRegionListUpdated(regionList: Array<Region>) {
+            setRegionList([...regionList]);
+        }
     })();
 
     const regionListCallback = new (class implements RegionListCallback {
@@ -249,7 +252,7 @@ function RegionEditorContainer(props: any) {
                     </IconButton>
                 </Tooltip>
             );
-    };
+        };
         return (
             <div className={classes.menu}>
                 {showUndoMenu()}

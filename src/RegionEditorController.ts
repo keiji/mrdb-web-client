@@ -6,9 +6,11 @@ const TICK = 0.01;
 const NEIGHBOR_THRESHOLD = 0.005;
 
 export class EditHistory {
+  selectedRegion: Region | null
   regionList: Array<Region>
 
-  constructor(regionList: Array<Region>) {
+  constructor(selectedRegion: Region | null, regionList: Array<Region>) {
+    this.selectedRegion = selectedRegion;
     this.regionList = regionList;
   }
 }
@@ -38,6 +40,9 @@ export class RegionEditorController {
       // Do nothing
     }
     onHistoryUpdated(historyList: Array<EditHistory>) {
+      // Do nothing
+    }
+    onRegionListUpdated(regionList: Array<Region>) {
       // Do nothing
     }
   });
@@ -223,6 +228,7 @@ export class RegionEditorController {
       if (!this.selectedRegion) {
         return;
       }
+      this.addEditHistory();
       this.selectedRegion.label = parseInt(event.key);
       this.callback.onChangedLabel(this.selectedRegion, this.regionList)
       this.redraw();
@@ -252,29 +258,28 @@ export class RegionEditorController {
     const lastHistoryIndex = this.historyList.length - 1;
     const latestHistory = this.historyList[lastHistoryIndex];
     this.regionList = latestHistory.regionList;
+    this.callback.onRegionListUpdated(this.regionList);
 
     this.historyList = [...this.historyList.slice(0, lastHistoryIndex)];
     this.callback.onHistoryUpdated(this.historyList);
 
-    if (this.selectedRegion === null) {
-      return;
-    }
+    console.log(latestHistory.selectedRegion);
 
-    const isSelectedRegion = this.regionList.filter((region) => {
-      return region === this.selectedRegion;
-    }).length != 0;
-
-    if (!isSelectedRegion) {
-      this.selectedRegion = null;
-    }
+    this.selectedRegion = latestHistory.selectedRegion;
   }
 
   private addEditHistory() {
-    this.historyList.push(
-      new EditHistory(this.regionList.map((region) => {
-        return region.deepCopy();
-      }))
-    );
+    let copiedSelectedRegion: Region | null = null;
+
+    const copiedRegionList = this.regionList.map((region) => {
+      const r = region.deepCopy();
+      if (region == this.selectedRegion) {
+        copiedSelectedRegion = r;
+      }
+      return r;
+    });
+
+    this.historyList.push(new EditHistory(copiedSelectedRegion, copiedRegionList));
 
     this.callback.onHistoryUpdated(this.historyList);
   }
@@ -483,4 +488,5 @@ export interface Callback {
   onDeletedRegion(region: Region, regionList: Array<Region>);
   onChangedLabel(region: Region, regionList: Array<Region>);
   onHistoryUpdated(historyList: Array<EditHistory>);
+  onRegionListUpdated(regionList: Array<Region>);
 }

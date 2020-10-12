@@ -97,8 +97,14 @@ function RegionList(props: any) {
             return (<TableCell>{labelValue}</TableCell>);
         }
         const label = labelList.filter((label: Label) => { return label.label == labelValue })[0];
+        let labelName: string
+        if(label) {
+             labelName = label.name;
+        } else {
+            labelName = 'Unknown';
+        }
 
-        return (<TableCell>{labelValue}: {label.name}</TableCell>);
+        return (<TableCell>{labelValue}: {labelName}</TableCell>);
     }
 
     return (
