@@ -234,15 +234,27 @@ function RegionEditorContainer(props: any) {
                 </Tooltip>
             );
         };
-        return (
-            <div className={classes.menu}>
-                {showUndoMenu()}
+        const showSubmitMenu = () => {
+            if (!historyList) {
+                return (<Box></Box>);
+            }
+            if (historyList.length == 0) {
+                return (<Box></Box>);
+            }
 
+            return (
                 <Tooltip title="Save to server" aria-label="submit-to-server">
                     <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
                         <BackupIcon />
                     </IconButton>
                 </Tooltip>
+            );
+    };
+        return (
+            <div className={classes.menu}>
+                {showUndoMenu()}
+                {showSubmitMenu()}
+
                 <Tooltip title="Export region data" aria-label="export-regions">
                     <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
                         <SaveIcon />
