@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, Box, Container, createStyles, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Box, Button, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -17,7 +17,7 @@ import UndoIcon from '@material-ui/icons/Undo';
 import BackupIcon from '@material-ui/icons/Backup';
 
 import { v4 as uuidv4 } from 'uuid';
-import { Undo } from '@material-ui/icons';
+import { nextTick } from 'process';
 
 const APP_TITLE = "CRDB - Comic Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -57,6 +57,12 @@ function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
     const idempotencyKey = uuidv4();
+
+    const [undoEvent, fireUndoEvent] = useState(0);
+
+    const [editingFile, setEditingFile] = useState<File | null>(null);
+    const [isDirty, setDirty] = useState(false);
+    const [showSaveConfirmDialog, setShowSaveDialog] = useState(false);
 
     const [hashes, setHashes] = useState<{}>()
 
@@ -116,6 +122,7 @@ function RegionEditorContainer(props: any) {
             submitRegions(regionList);
         }
     })();
+
     const categorySettingCallback = new (class implements CategorySettingCallback {
         onCategoriesUpdated(categoryList: Category[]): void {
             const newCategoryList = [...categoryList];
@@ -148,8 +155,32 @@ function RegionEditorContainer(props: any) {
         if (!props.selectedFile) {
             return;
         }
-        getRegions();
+
+        if (isDirty) {
+            setShowSaveDialog(true);
+            return;
+        }
+
+        setEditingFile(props.selectedFile)
     }, [props.selectedFile]);
+
+    useEffect(() => {
+        if (!editingFile) {
+            return;
+        }
+
+        getRegions();
+    }, [editingFile]);
+
+    useEffect(() => {
+        if (!historyList) {
+            return;
+        }
+
+        const dirty = historyList.length > 0;
+        setDirty(dirty);
+
+    }, [historyList]);
 
     const submitRegions = async (regions: Array<Region> | null | undefined) => {
         if (!hashes) {
@@ -162,6 +193,7 @@ function RegionEditorContainer(props: any) {
 
         setSnackbarText("Save completed.");
         setState({ ...state, open: true });
+        setDirty(false);
     };
 
     const saveRegions = async (regions: Array<Region> | null | undefined) => {
@@ -210,7 +242,7 @@ function RegionEditorContainer(props: any) {
     }
 
     const undo = () => {
-
+        fireUndoEvent(Date.now());
     }
 
     const menu = () => {
@@ -223,10 +255,10 @@ function RegionEditorContainer(props: any) {
 
         const showUndoMenu = () => {
             if (!historyList) {
-                return (<Box></Box>);
+                return (<span></span>);
             }
             if (historyList.length == 0) {
-                return (<Box></Box>);
+                return (<span></span>);
             }
 
             return (
@@ -238,11 +270,8 @@ function RegionEditorContainer(props: any) {
             );
         };
         const showSubmitMenu = () => {
-            if (!historyList) {
-                return (<Box></Box>);
-            }
-            if (historyList.length == 0) {
-                return (<Box></Box>);
+            if (!isDirty) {
+                return (<span></span>);
             }
 
             return (
@@ -266,6 +295,42 @@ function RegionEditorContainer(props: any) {
             </div>
         );
     }
+
+    const showSaveDialog = () => {
+        const handleSave = () => {
+            submitRegions(regionList);
+            setShowSaveDialog(false);
+            setEditingFile(props.selectedFile);
+        }
+        const handleDiscard = () => {
+            setShowSaveDialog(false);
+            setEditingFile(props.selectedFile);
+        }
+
+        return (
+            <Dialog
+                open={showSaveConfirmDialog}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">Save</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Region data have been changed.
+              </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleSave} color="primary" autoFocus>
+                        Save
+              </Button>
+                    <Button onClick={handleDiscard} color="primary">
+                        Discard
+              </Button>
+                </DialogActions>
+            </Dialog>
+        );
+    }
+
     return (
         <React.Fragment>
             <AppBar position="static">
@@ -287,11 +352,12 @@ function RegionEditorContainer(props: any) {
             />
             <Grid container spacing={0} className={classes.grid}>
                 <Grid item xs={8} className={classes.regionEditor}>
-                    <RegionEditor selectedFile={props.selectedFile}
+                    <RegionEditor file={editingFile}
                         selectedCategory={selectedCategory}
                         regionList={regionList}
                         selectedRegion={selectedRegion}
                         callback={regionEditorCallback}
+                        undoEvent={undoEvent}
                     />
                 </Grid>
                 <Grid item xs={4} className={classes.regionList} >
@@ -309,6 +375,9 @@ function RegionEditorContainer(props: any) {
                 </Grid>
 
             </Grid>
+
+            {showSaveDialog()}
+
         </React.Fragment>
     );
 }

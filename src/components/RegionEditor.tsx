@@ -30,11 +30,15 @@ export function RegionEditor(props: any) {
     const canvas = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
-        if (!props.selectedFile) {
+        if (!props.file) {
             return;
         }
 
-        manipulateImage.loadImage(props.selectedFile, (image: HTMLImageElement) => {
+        if (regionEditorController) {
+            regionEditorController.clearEditHistory();
+        }
+
+        manipulateImage.loadImage(props.file, (image: HTMLImageElement) => {
             if (!canvas.current) {
                 return;
             }
@@ -42,7 +46,19 @@ export function RegionEditor(props: any) {
             setImage(image);
         });
 
-    }, [props.selectedFile]);
+    }, [props.file]);
+
+    useEffect(() => {
+        if (!props.undoEvent) {
+            return;
+        }
+        if (!regionEditorController) {
+            return;
+        }
+
+        regionEditorController.restoreEditHistory();
+
+    }, [props.undoEvent]);
 
     useEffect(() => {
         if (regionEditorController) {

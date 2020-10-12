@@ -12,6 +12,7 @@ import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
 import RegionEditorContainer from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
+
 import * as apis from "./api/crdbApi";
 
 // https://techracho.bpsinc.jp/hachi8833/2019_10_09/80851
@@ -85,6 +86,7 @@ const useStyles = makeStyles((theme: Theme) =>
 function App() {
   const [imageListShown, setImageListShown] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>();
+
   const [selectedFile, setFile] = useState<File>();
 
   const agreementDate = localStorage.getItem(KEY_AGREEMENT);
@@ -93,20 +95,6 @@ function App() {
   const rootElement = useRef<HTMLDivElement>(null);
 
   const classes = useStyles();
-
-  const callback = new (class implements Callback {
-    onFileListUpdated(fileList: File[]): void {
-      setFileList(fileList);
-    }
-
-    onFileSelected(file: File) {
-      setFile(file);
-    }
-  });
-
-  const toggleDrawer = () => {
-    setImageListShown(!imageListShown);
-  }
 
   const prevFile = () => {
     if (!selectedFile) {
@@ -142,6 +130,20 @@ function App() {
     if (index < fileList.length) {
       setFile(fileList[index]);
     }
+  }
+
+  const callback = new (class implements Callback {
+    onFileListUpdated(fileList: File[]): void {
+      setFileList(fileList);
+    }
+
+    onFileSelected(file: File) {
+      setFile(file);
+    }
+  });
+
+  const toggleDrawer = () => {
+    setImageListShown(!imageListShown);
   }
 
   const getHashList = async (fileList: Array<File>) => {
@@ -184,7 +186,7 @@ function App() {
     }
   }
 
-  const showDialog = () => {
+  const showAgreementDialog = () => {
     const handleAgree = () => {
       localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
       setDialogShown(false);
@@ -220,6 +222,7 @@ function App() {
       </Dialog>
     );
   }
+
   const showButtons = () => {
     if (!fileList || fileList.length == 0) {
       return (<Box></Box>);
@@ -297,7 +300,7 @@ function App() {
         {showButtons()}
       </Paper>
 
-      {showDialog()}
+      {showAgreementDialog()}
 
     </div>
   );

@@ -268,7 +268,12 @@ export class RegionEditorController {
     this.redraw();
   }
 
-  private restoreEditHistory() {
+  clearEditHistory() {
+    this.historyList = Array();
+    this.callback.onHistoryUpdated(this.historyList);
+  }
+
+  restoreEditHistory() {
     if (this.historyList.length == 0) {
       return;
     }
