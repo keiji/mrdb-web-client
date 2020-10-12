@@ -354,54 +354,78 @@ export class RegionEditorController {
     return new Region(this.category.id, this.label, editingRectangle)
   }
 
-  shrink(key: string, dist: number) {
+  shrink(key: string, dist: number): boolean {
     if (key.endsWith('Left')) {
-      this.deform(0, 0, -dist, 0);
+      return this.deform(0, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, 0, 0, -dist);
+      return this.deform(0, 0, 0, -dist);
     } else if (key.endsWith('Right')) {
-      this.deform(dist, 0, 0, 0);
+      return this.deform(dist, 0, 0, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, dist, 0, 0);
+      return this.deform(0, dist, 0, 0);
     }
+    return false;
   }
 
-  expand(key: string, dist: number) {
+  expand(key: string, dist: number): boolean {
     if (key.endsWith('Left')) {
-      this.deform(-dist, 0, 0, 0);
+      return this.deform(-dist, 0, 0, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, -dist, 0, 0);
+      return this.deform(0, -dist, 0, 0);
     } else if (key.endsWith('Right')) {
-      this.deform(0, 0, dist, 0);
+      return this.deform(0, 0, dist, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, 0, 0, dist);
+      return this.deform(0, 0, 0, dist);
     }
+
+    return false;
   }
 
-  move(key: string, dist: number) {
+  move(key: string, dist: number): boolean {
     if (key.endsWith('Left')) {
-      this.deform(-dist, 0, -dist, 0);
+      return this.deform(-dist, 0, -dist, 0);
     } else if (key.endsWith('Up')) {
-      this.deform(0, -dist, 0, -dist);
+      return this.deform(0, -dist, 0, -dist);
     } else if (key.endsWith('Right')) {
-      this.deform(dist, 0, dist, 0);
+      return this.deform(dist, 0, dist, 0);
     } else if (key.endsWith('Down')) {
-      this.deform(0, dist, 0, dist);
+      return this.deform(0, dist, 0, dist);
     }
+
+    return false;
   }
 
-  deform(left: number, top: number, right: number, bottom: number) {
+  deform(left: number, top: number, right: number, bottom: number): boolean {
     const rect = this.selectedRegion?.rectangle
     if (!rect) {
-      return;
+      return false;
+    }
+
+    let newLeft = rect.left + left;
+    let newTop = rect.top + top;
+    let newRight = rect.right + right;
+    let newBottom = rect.bottom + bottom;
+
+    newLeft = Math.max(0, newLeft);
+    newTop = Math.max(0, newTop);
+    newRight = Math.min(1.0, newRight);
+    newBottom = Math.min(1.0, newBottom);
+
+    if (rect.left === newLeft
+      && rect.top === newTop
+      && rect.right === newRight
+      && rect.bottom === newBottom) {
+      return false;
     }
 
     this.addEditHistory();
 
-    rect.left = rect.left + left;
-    rect.top = rect.top + top;
-    rect.right = rect.right + right;
-    rect.bottom = rect.bottom + bottom;
+    rect.left = newLeft;
+    rect.top = newTop;
+    rect.right = newRight;
+    rect.bottom = newBottom;
+
+    return true;
   }
 
   redraw() {
