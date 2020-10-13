@@ -92,7 +92,7 @@ function App() {
   const [selectedFile, setFile] = useState<File>();
 
   const agreementDate = localStorage.getItem(KEY_AGREEMENT);
-  const [dialogShown, setDialogShown] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true);
+  const [agreementDialogShown, showAgreementDialog] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true);
 
   const rootElement = useRef<HTMLDivElement>(null);
 
@@ -145,8 +145,8 @@ function App() {
   });
 
   const regionEditorContainerCallback = new (class implements RegionEditorContainerCallback {
-    onOnlineModeRequested(): void {
-      setDialogShown(true);
+    onTurnOnlineRequested(): void {
+      showAgreementDialog(true);
     }
   });
 
@@ -194,28 +194,28 @@ function App() {
     }
   }
 
-  const showAgreementDialog = () => {
+  const agreementDialog = () => {
     const handleAgree = () => {
       setOnlineMode(true);
         localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
-      setDialogShown(false);
+      showAgreementDialog(false);
       }
     const handleDisagree = () => {
       setOnlineMode(false);
-      setDialogShown(false);
+      showAgreementDialog(false);
     }
 
     return (
       <Dialog
-        open={dialogShown}
+        open={agreementDialogShown}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Agreement</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Online mode(Agreement)</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Image files will be uploaded to the server for generate image-ids by "imagehash" algorithm.
-            And image files will be saved and used to improve services.<br />
+            In online mode, image files will be uploaded to our server for generate image-ids by "imagehash" algorithm.
+            And image files will be saved and used improving our services.<br />
             ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.<br />
             <br />
             We <strong>DO NOT</strong> redistribute your image files.
@@ -223,9 +223,9 @@ function App() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDisagree} color="primary">
-            Disagree
+            Decline (Continue offline)
           </Button>
-          <Button onClick={handleAgree} color="primary" autoFocus>
+          <Button onClick={handleAgree} color="primary">
             Agree
           </Button>
         </DialogActions>
@@ -321,7 +321,7 @@ function App() {
         {showButtons()}
       </Paper>
 
-      {showAgreementDialog()}
+      {agreementDialog()}
 
     </div>
   );

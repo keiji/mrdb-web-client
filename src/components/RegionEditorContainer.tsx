@@ -256,13 +256,6 @@ export function RegionEditorContainer(props: any) {
     }
 
     const menu = () => {
-        if (!regionList || regionList.length == 0) {
-            return (
-                <div className={classes.menu}>
-                </div>
-            );
-        }
-
         const showUndoMenu = () => {
             if (!historyList) {
                 return (<span></span>);
@@ -280,23 +273,23 @@ export function RegionEditorContainer(props: any) {
             );
         };
 
-        const turnSaveSaver = () => {
-            props.callback.onOnlineModeRequested();
-        }
-
-        const showCloudMenu = () => {
-            if (!isDirty) {
-                return (<span></span>);
+        const showServerMenu = () => {
+            const turnOnline = () => {
+                props.callback.onTurnOnlineRequested();
             }
 
             if (!props.onlineMode) {
                 return (
-                    <Tooltip title="Enable save to server" aria-label="save-to-server">
-                        <IconButton color="inherit" onClick={turnSaveSaver}>
+                    <Tooltip title="Turn to online" aria-label="turn-online-on">
+                        <IconButton color="inherit" onClick={turnOnline}>
                             <CloudOffIcon />
                         </IconButton>
                     </Tooltip>
                 );
+            }
+
+            if (!isDirty) {
+                return (<span></span>);
             }
 
             return (
@@ -307,51 +300,89 @@ export function RegionEditorContainer(props: any) {
                 </Tooltip>
             );
         };
-        return (
-            <div className={classes.menu}>
-                {showUndoMenu()}
-                {showCloudMenu()}
 
+        const showExportMenu = () => {
+            if (!regionList || regionList.length == 0) {
+                return (<span></span>);
+            }
+
+            return (
                 <Tooltip title="Export region data" aria-label="export-regions">
                     <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
                         <SaveIcon />
                     </IconButton>
                 </Tooltip>
+            );
+        }
+
+        return (
+            <div className={classes.menu}>
+                {showUndoMenu()}
+                {showServerMenu()}
+                {showExportMenu()}
             </div>
         );
     }
 
     const showSaveDialog = () => {
         const handleSave = () => {
-            submitRegions(regionList);
-            setShowSaveDialog(false);
-            setEditingFile(props.selectedFile);
-        }
-        const handleDiscard = () => {
+            if (props.onlineMode) {
+                submitRegions(regionList);
+            } else {
+                saveRegions(regionList);
+            }
+
+            setRegionList(Array());
             setShowSaveDialog(false);
             setEditingFile(props.selectedFile);
         }
 
+        const handleDiscard = () => {
+            setRegionList(Array());
+
+            setShowSaveDialog(false);
+            setEditingFile(props.selectedFile);
+        }
+
+        const showSaveButton = () => {
+            if (props.onlineMode) {
+                return (
+                    <DialogActions>
+                        <Button onClick={handleDiscard} color="primary">
+                            Discard
+                        </Button>
+                        <Button onClick={handleSave} color="primary" autoFocus>
+                            Save
+                        </Button>
+                    </DialogActions>
+                );
+            } else {
+                return (
+                    <DialogActions>
+                        <Button onClick={handleDiscard} color="primary">
+                            Discard
+                        </Button>
+                        <Button onClick={handleSave} color="primary" autoFocus>
+                            Save
+                        </Button>
+                    </DialogActions>
+                );
+            }
+        }
         return (
             <Dialog
                 open={showSaveConfirmDialog}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">Save</DialogTitle>
+                <DialogTitle id="alert-dialog-title">Save changes?</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Region data have been changed.
+                        Do you want to save changes before opening an other file?
               </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleSave} color="primary" autoFocus>
-                        Save
-              </Button>
-                    <Button onClick={handleDiscard} color="primary">
-                        Discard
-              </Button>
-                </DialogActions>
+
+                {showSaveButton()}
             </Dialog>
         );
     }
@@ -410,5 +441,5 @@ export function RegionEditorContainer(props: any) {
 export default RegionEditorContainer;
 
 export interface Callback {
-    onOnlineModeRequested(): void
+    onTurnOnlineRequested(): void
 }

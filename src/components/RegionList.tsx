@@ -98,8 +98,8 @@ function RegionList(props: any) {
         }
         const label = labelList.filter((label: Label) => { return label.label == labelValue })[0];
         let labelName: string
-        if(label) {
-             labelName = label.name;
+        if (label) {
+            labelName = label.name;
         } else {
             labelName = 'Unknown';
         }
@@ -107,13 +107,12 @@ function RegionList(props: any) {
         return (<TableCell>{labelValue}: {labelName}</TableCell>);
     }
 
-    return (
-        <Box className={classes.root}>
-            <CategorySetting
-                categoryList={props.categoryList}
-                selectedCategory={props.selectedCategory}
-                callback={props.categorySettingCallback} />
+    const showTable = () => {
+        if (!props.regionList|| props.regionList.length == 0) {
+            return (<span></span>);
+        }
 
+        return (
             <TableContainer component={Paper}>
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
@@ -134,6 +133,17 @@ function RegionList(props: any) {
                     </TableBody>
                 </Table>
             </TableContainer>
+        );
+    }
+
+    return (
+        <Box className={classes.root}>
+            <CategorySetting
+                categoryList={props.categoryList}
+                selectedCategory={props.selectedCategory}
+                callback={props.categorySettingCallback} />
+
+            {showTable()}
         </Box>
     );
 }
