@@ -215,7 +215,7 @@ function App() {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             In online mode, image files will be uploaded to our server for generate image-ids by "imagehash" algorithm.
-            And image files will be saved and used improving our services.<br />
+            And image files will be stored for improving our services.<br />
             ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.<br />
             <br />
             We <strong>DO NOT</strong> redistribute your image files.
