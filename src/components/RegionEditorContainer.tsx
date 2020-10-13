@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, Box, Button, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import { AppBar, Button, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
 import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -15,9 +15,9 @@ import { Label } from '../Label';
 import SaveIcon from '@material-ui/icons/Save';
 import UndoIcon from '@material-ui/icons/Undo';
 import BackupIcon from '@material-ui/icons/Backup';
+import CloudOffIcon from '@material-ui/icons/CloudOff';
 
 import { v4 as uuidv4 } from 'uuid';
-import { nextTick } from 'process';
 
 const APP_TITLE = "CRDB - Comic Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -53,7 +53,7 @@ export interface State extends SnackbarOrigin {
     open: boolean;
 }
 
-function RegionEditorContainer(props: any) {
+export function RegionEditorContainer(props: any) {
     const classes = useStyles();
 
     const idempotencyKey = uuidv4();
@@ -137,6 +137,10 @@ function RegionEditorContainer(props: any) {
     })();
 
     const getRegions = async () => {
+        if (!props.onlineMode) {
+            return;
+        }
+
         setRegionList(new Array<Region>());
 
         const h = await apis.fetchHash(props.selectedFile);
@@ -163,6 +167,14 @@ function RegionEditorContainer(props: any) {
 
         setEditingFile(props.selectedFile)
     }, [props.selectedFile]);
+
+    useEffect(() => {
+        if (!props.onlineMode) {
+            return;
+        }
+
+        getRegions();
+    }, [props.onlineMode]);
 
     useEffect(() => {
         if (!editingFile) {
@@ -197,11 +209,6 @@ function RegionEditorContainer(props: any) {
     };
 
     const saveRegions = async (regions: Array<Region> | null | undefined) => {
-        console.log(hashes);
-
-        if (!hashes) {
-            return;
-        }
         if (!regions) {
             return;
         }
@@ -209,13 +216,16 @@ function RegionEditorContainer(props: any) {
         const regionsObj = convertRegionsToPathRegions(regions);
         const jsonObj = {
             "file": props.selectedFile.name,
-            "image_ids": {
+            "regions": regionsObj
+        }
+
+        if (hashes) {
+            jsonObj["image_ids"] = {
                 "dhash8": hashes["dhash8"],
                 "dhash12": hashes["dhash12"],
                 "dhash16": hashes["dhash16"],
-            },
-            "regions": regionsObj
-        };
+            }
+        }
 
         const blob = new Blob([JSON.stringify(jsonObj, null, '  ')], { type: 'application\/json' });
         const url = URL.createObjectURL(blob);
@@ -269,9 +279,24 @@ function RegionEditorContainer(props: any) {
                 </Tooltip>
             );
         };
-        const showSubmitMenu = () => {
+
+        const turnSaveSaver = () => {
+            props.callback.onOnlineModeRequested();
+        }
+
+        const showCloudMenu = () => {
             if (!isDirty) {
                 return (<span></span>);
+            }
+
+            if (!props.onlineMode) {
+                return (
+                    <Tooltip title="Enable save to server" aria-label="save-to-server">
+                        <IconButton color="inherit" onClick={turnSaveSaver}>
+                            <CloudOffIcon />
+                        </IconButton>
+                    </Tooltip>
+                );
             }
 
             return (
@@ -285,7 +310,7 @@ function RegionEditorContainer(props: any) {
         return (
             <div className={classes.menu}>
                 {showUndoMenu()}
-                {showSubmitMenu()}
+                {showCloudMenu()}
 
                 <Tooltip title="Export region data" aria-label="export-regions">
                     <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
@@ -383,3 +408,7 @@ function RegionEditorContainer(props: any) {
 }
 
 export default RegionEditorContainer;
+
+export interface Callback {
+    onOnlineModeRequested(): void
+}

@@ -10,7 +10,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 
-import RegionEditorContainer from './components/RegionEditorContainer';
+import { RegionEditorContainer, Callback as RegionEditorContainerCallback } from './components/RegionEditorContainer';
 import { ImageList, Callback } from './components/ImageList';
 
 import * as apis from "./api/crdbApi";
@@ -84,6 +84,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 function App() {
+  const [onlineMode, setOnlineMode] = useState(true);
+
   const [imageListShown, setImageListShown] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>();
 
@@ -142,6 +144,12 @@ function App() {
     }
   });
 
+  const regionEditorContainerCallback = new (class implements RegionEditorContainerCallback {
+    onOnlineModeRequested(): void {
+      setDialogShown(true);
+    }
+  });
+
   const toggleDrawer = () => {
     setImageListShown(!imageListShown);
   }
@@ -188,11 +196,13 @@ function App() {
 
   const showAgreementDialog = () => {
     const handleAgree = () => {
-      localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
+      setOnlineMode(true);
+        localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
       setDialogShown(false);
-    }
+      }
     const handleDisagree = () => {
-      window.location.href = `https://google.com`;
+      setOnlineMode(false);
+      setDialogShown(false);
     }
 
     return (
@@ -223,6 +233,19 @@ function App() {
     );
   }
 
+  const showExportButton = () => {
+    if (!onlineMode) {
+      return (<span></span>);
+    }
+
+    return (
+      <Tooltip title="Export all image-IDs" aria-label="export-image-ids">
+        <IconButton color="inherit" onClick={exportRegions}>
+          <SaveAltIcon />
+        </IconButton>
+      </Tooltip>
+    );
+  }
   const showButtons = () => {
     if (!fileList || fileList.length == 0) {
       return (<Box></Box>);
@@ -239,11 +262,7 @@ function App() {
             <NavigateNextIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Export all image-IDs" aria-label="export-image-ids">
-          <IconButton color="inherit" onClick={exportRegions}>
-            <SaveAltIcon />
-          </IconButton>
-        </Tooltip>
+        {showExportButton}
       </Box>
     );
   }
@@ -277,6 +296,8 @@ function App() {
         <main className={classes.main}>
           <RegionEditorContainer
             selectedFile={selectedFile}
+            onlineMode={onlineMode}
+            callback={regionEditorContainerCallback}
             className={clsx(classes.content, {
               [classes.contentShift]: imageListShown,
             })}
