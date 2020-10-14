@@ -262,7 +262,8 @@ function App() {
             <NavigateNextIcon />
           </IconButton>
         </Tooltip>
-        {showExportButton}
+
+        {showExportButton()}
       </Box>
     );
   }
