@@ -159,6 +159,16 @@ export function RegionEditorContainer(props: Props) {
         }
     })();
 
+    const handleError = (error: Error) => {
+        switch (error.message) {
+            case "Failed to fetch": {
+                setSnackbarText("A network error has occurred.");
+                setState({ ...state, open: true });
+                break;
+            }
+        }
+    }
+
     const getRegions = async () => {
         if (!props.selectedFile) {
             return;
@@ -166,15 +176,16 @@ export function RegionEditorContainer(props: Props) {
 
         setRegionList(new Array<Region>());
 
-        const h = await apis.fetchHash(props.selectedFile);
-        setHashes(h);
-
         try {
+            const h = await apis.fetchHash(props.selectedFile);
+            setHashes(h);
+
             const result = await apis.fetchPageRegions(h);
             if (h === result.hashes) {
                 setRegionList(result.regions);
             }
         } catch (error) {
+            handleError(error);
         }
     }
 
@@ -215,17 +226,30 @@ export function RegionEditorContainer(props: Props) {
     }, [historyList]);
 
     const submitRegions = async () => {
-        if (!hashes) {
+        if (!props.selectedFile) {
             return;
         }
         if (!regionList) {
             return;
         }
-        await apis.submitPageRegions(idempotencyKey, hashes, regionList);
 
-        setSnackbarText("Save completed.");
-        setState({ ...state, open: true });
-        setDirty(false);
+        try {
+            if (!hashes) {
+                const h = await apis.fetchHash(props.selectedFile);
+                setHashes(h);
+            }
+            if (!hashes) {
+                return;
+            }
+
+            await apis.submitPageRegions(idempotencyKey, hashes, regionList);
+
+            setSnackbarText("Save completed.");
+            setState({ ...state, open: true });
+            setDirty(false);
+        } catch (error) {
+            handleError(error);
+        }
     };
 
     const saveRegions = async () => {

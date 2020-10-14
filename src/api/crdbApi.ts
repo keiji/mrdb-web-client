@@ -4,13 +4,6 @@ import { Label } from '../Label';
 
 const BASE_API_ENDPOINT = 'https://crdb.keiji.dev/api/v1'
 
-export async function fetchHash(imageFile: File) {
-  const formData = new FormData();
-  formData.append('file', imageFile);
-  const response = await fetch(BASE_API_ENDPOINT + "/hash", { method: 'POST', body: formData });
-  return response.json();
-}
-
 const handleErrors = (response: any) => {
   if (response.ok) {
     return response;
@@ -24,11 +17,18 @@ const handleErrors = (response: any) => {
     case 404: throw Error('NOT_FOUND');
     default: throw Error('UNHANDLED_ERROR');
   }
-};
+}
+
+export async function fetchHash(imageFile: File) {
+  const formData = new FormData();
+  formData.append('file', imageFile);
+  const response = await fetch(BASE_API_ENDPOINT + "/hash", { method: 'POST', body: formData })
+    .then(handleErrors);
+  return response.json();
+}
 
 export async function fetchCategories() {
   const response = await fetch(BASE_API_ENDPOINT + "/category")
-    .catch((e) => { throw Error(e); })
     .then(handleErrors);
   const jsonObj = await response.json();
   const categories = jsonObj['categories'].map((categoryObj: any) => {
@@ -43,7 +43,6 @@ export async function fetchCategories() {
 
 export async function fetchLabels(categoryId: number) {
   const response = await fetch(BASE_API_ENDPOINT + `/category/${categoryId}`)
-    .catch((e) => { throw Error(e); })
     .then(handleErrors);
   const jsonObj = await response.json();
   const labels = jsonObj['labels'].map((labelObj: any) => {
@@ -63,7 +62,6 @@ export function fetchPageRegionsUrl(imageIds: {}) {
 
 export async function fetchPageRegions(imageIds: {}) {
   const response = await fetch(fetchPageRegionsUrl(imageIds))
-    .catch((e) => { throw Error(e); })
     .then(handleErrors);
   const jsonObj = await response.json();
 
