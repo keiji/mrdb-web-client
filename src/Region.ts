@@ -42,12 +42,14 @@ export class Region {
     }
 }
 
+const ORDER_UNIT = 5;
+
 export function convertRegionsToPathRegions(regions: Array<Region>) {
-    return regions.map((region) => {
+    return regions.map((region: Region, index: number) => {
         return {
             "category_id": region.categoryId,
             "label": region.label,
-            "order": 0,
+            "order": index * ORDER_UNIT,
             "points": region.rectangle.toPoints()
         }
     });
