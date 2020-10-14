@@ -200,6 +200,7 @@ export function ImageList(props: any) {
                     type="file"
                     name="files[]"
                     id="file"
+                    accept="image/*"
                     multiple
                     onChange={changeFile}
                 />

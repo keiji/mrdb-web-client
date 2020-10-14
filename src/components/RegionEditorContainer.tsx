@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import RegionList from './RegionList';
 
-import { AppBar, Button, Container, createStyles, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, makeStyles, Snackbar, SnackbarOrigin, Theme, Toolbar, Tooltip, Typography } from '@material-ui/core';
+import {
+    AppBar, Button, Container, createStyles,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    Grid, IconButton, makeStyles, Menu, MenuItem, Snackbar, SnackbarOrigin,
+    Theme, Toolbar, Tooltip, Typography
+} from '@material-ui/core';
 import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
 
-import { convertRegionsToPathRegions, Region } from '../Region';
+import { convertPointsToRegions, convertRegionsToPathRegions, Region } from '../Region';
 import * as apis from "../api/crdbApi";
 import { Category } from '../Category';
 import { Label } from '../Label';
 
-import SaveIcon from '@material-ui/icons/Save';
 import UndoIcon from '@material-ui/icons/Undo';
 import BackupIcon from '@material-ui/icons/Backup';
 import CloudOffIcon from '@material-ui/icons/CloudOff';
+import ImportExportIcon from '@material-ui/icons/ImportExport';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -63,6 +68,9 @@ export function RegionEditorContainer(props: any) {
     const [editingFile, setEditingFile] = useState<File | null>(null);
     const [isDirty, setDirty] = useState(false);
     const [showSaveConfirmDialog, setShowSaveDialog] = useState(false);
+
+    const [anchorImportExportMenu, setAnchorImportExportMenu] = useState<null | HTMLElement>(null);
+    const importInput = useRef<null | HTMLInputElement>(null);
 
     const [hashes, setHashes] = useState<{}>()
 
@@ -119,7 +127,8 @@ export function RegionEditorContainer(props: any) {
             setSelectedRegion(region);
         }
         onSubmitRegionList(regionList: Region[]): void {
-            submitRegions(regionList);
+            setRegionList(regionList);
+            submitRegions();
         }
     })();
 
@@ -194,26 +203,26 @@ export function RegionEditorContainer(props: any) {
 
     }, [historyList]);
 
-    const submitRegions = async (regions: Array<Region> | null | undefined) => {
+    const submitRegions = async () => {
         if (!hashes) {
             return;
         }
-        if (!regions) {
+        if (!regionList) {
             return;
         }
-        await apis.submitPageRegions(idempotencyKey, hashes, regions);
+        await apis.submitPageRegions(idempotencyKey, hashes, regionList);
 
         setSnackbarText("Save completed.");
         setState({ ...state, open: true });
         setDirty(false);
     };
 
-    const saveRegions = async (regions: Array<Region> | null | undefined) => {
-        if (!regions) {
+    const saveRegions = async () => {
+        if (!regionList) {
             return;
         }
 
-        const regionsObj = convertRegionsToPathRegions(regions);
+        const regionsObj = convertRegionsToPathRegions(regionList);
         const jsonObj = {
             "file": props.selectedFile.name,
             "regions": regionsObj
@@ -294,24 +303,104 @@ export function RegionEditorContainer(props: any) {
 
             return (
                 <Tooltip title="Save to server" aria-label="submit-to-server">
-                    <IconButton color="inherit" onClick={() => { submitRegions(regionList); }}>
+                    <IconButton color="inherit" onClick={submitRegions}>
                         <BackupIcon />
                     </IconButton>
                 </Tooltip>
             );
         };
 
-        const showExportMenu = () => {
-            if (!regionList || regionList.length == 0) {
-                return (<span></span>);
+        const showImportExportMenu = () => {
+            if (!editingFile) {
+                return;
+            }
+
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+                setAnchorImportExportMenu(event.currentTarget);
+            }
+            const handleClose = () => {
+                setAnchorImportExportMenu(null);
+            }
+
+            const handleImport = () => {
+                handleClose();
+
+                if (!importInput.current) {
+                    return;
+                }
+                importInput.current.click();
+            }
+            const handleExport = () => {
+                handleClose();
+
+                saveRegions();
+            }
+
+            const handleChangeFile = (event) => {
+                event.preventDefault();
+
+                const files = event.target.files;
+                if (!files) {
+                    return;
+                }
+
+                const file = files[0];
+
+                var fileReader = new FileReader();
+                fileReader.onload = (e) => {
+                    const result = e.target?.result;
+                    if (!result) {
+                        return;
+                    }
+                    if (typeof result === 'string') {
+                        const jsonObj = JSON.parse(result as string);
+                        const regions = convertPointsToRegions(jsonObj['regions']);
+                        setRegionList(regions);
+                    }
+
+                    if (importInput.current) {
+                        importInput.current.value = "";
+                    }
+            };
+
+                fileReader.readAsText(file);
+            }
+
+            const showExportMenu = () => {
+                const disabled = (!regionList || regionList.length == 0);
+                if (disabled) {
+                    return (<MenuItem disabled onClick={handleExport}>Export</MenuItem>);
+                }
+                return (<MenuItem onClick={handleExport}>Export</MenuItem>);
             }
 
             return (
-                <Tooltip title="Export region data" aria-label="export-regions">
-                    <IconButton color="inherit" onClick={() => { saveRegions(regionList); }}>
-                        <SaveIcon />
-                    </IconButton>
-                </Tooltip>
+                <span>
+                    <Menu
+                        id="simple-menu"
+                        anchorEl={anchorImportExportMenu}
+                        keepMounted
+                        open={Boolean(anchorImportExportMenu)}
+                        onClose={handleClose}
+                    >
+                        <MenuItem onClick={handleImport}>Import</MenuItem>
+                        {showExportMenu()}
+                    </Menu >
+                    <Tooltip title="Export region data" aria-label="export-regions">
+                        <IconButton color="inherit" onClick={handleClick}>
+                            <ImportExportIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <input
+                        ref={importInput}
+                        type="file"
+                        name="files[]"
+                        id="file"
+                        accept="application/json"
+                        onChange={handleChangeFile}
+                        hidden
+                    />
+                </span >
             );
         }
 
@@ -319,7 +408,7 @@ export function RegionEditorContainer(props: any) {
             <div className={classes.menu}>
                 {showUndoMenu()}
                 {showServerMenu()}
-                {showExportMenu()}
+                {showImportExportMenu()}
             </div>
         );
     }
@@ -327,9 +416,9 @@ export function RegionEditorContainer(props: any) {
     const showSaveDialog = () => {
         const handleSave = () => {
             if (props.onlineMode) {
-                submitRegions(regionList);
+                submitRegions();
             } else {
-                saveRegions(regionList);
+                saveRegions();
             }
 
             setRegionList(Array());
