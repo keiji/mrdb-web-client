@@ -353,21 +353,21 @@ export class RegionEditorController {
 
     this.callback = callback;
 
-    canvas.addEventListener("mousedown", this.onMouseDownListener);
-    canvas.addEventListener("mousemove", this.onMouseMoveListener);
-    canvas.addEventListener("mouseup", this.onMouseUpListener);
+    document.addEventListener("mousedown", this.onMouseDownListener);
+    document.addEventListener("mousemove", this.onMouseMoveListener);
+    document.addEventListener("mouseup", this.onMouseUpListener);
 
     // https://qiita.com/jay-es/items/cd30c73989659374698a
-    canvas.addEventListener("keydown", this.onKeyDownListener);
-    canvas.addEventListener("keyup", this.onKeyUpListener);
+    document.addEventListener("keydown", this.onKeyDownListener);
+    document.addEventListener("keyup", this.onKeyUpListener);
   }
 
   destroy() {
-    this.canvas.removeEventListener("mousedown", this.onMouseDownListener);
-    this.canvas.removeEventListener("mousemove", this.onMouseMoveListener);
-    this.canvas.removeEventListener("mouseup", this.onMouseUpListener);
-    this.canvas.removeEventListener("keydown", this.onKeyDownListener);
-    this.canvas.removeEventListener("keyup", this.onKeyUpListener);
+    document.removeEventListener("mousedown", this.onMouseDownListener);
+    document.removeEventListener("mousemove", this.onMouseMoveListener);
+    document.removeEventListener("mouseup", this.onMouseUpListener);
+    document.removeEventListener("keydown", this.onKeyDownListener);
+    document.removeEventListener("keyup", this.onKeyUpListener);
   }
 
   createRegion(x: number, y: number) {
