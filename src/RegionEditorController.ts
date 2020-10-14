@@ -21,7 +21,7 @@ export class EditHistory {
 
 export class RegionEditorController {
 
-  category: Category;
+  category: Category = new Category(0, 'Unknown', 0);
   label = 0;
 
   private mode: Mode = 'move';
@@ -346,13 +346,10 @@ export class RegionEditorController {
   constructor(
     canvas: HTMLCanvasElement,
     image: HTMLImageElement,
-    category: Category,
     callback: Callback,
   ) {
     this.canvas = canvas;
     this.image = image;
-
-    this.category = category;
 
     this.callback = callback;
 

@@ -71,7 +71,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-export function ImageList(props: any) {
+type Props = {
+    selectedFile: File | null | undefined,
+    callback: Callback,
+}
+
+export function ImageList(props: Props) {
     const classes = useStyles();
 
     const [imageFiles, setImageFiles] = useState(Array<File>());

@@ -58,14 +58,21 @@ export interface State extends SnackbarOrigin {
     open: boolean;
 }
 
-export function RegionEditorContainer(props: any) {
+type Props = {
+    onlineMode: boolean,
+    selectedFile: File | null | undefined,
+    callback: Callback,
+    className: any
+}
+
+export function RegionEditorContainer(props: Props) {
     const classes = useStyles();
 
     const idempotencyKey = uuidv4();
 
     const [undoEvent, fireUndoEvent] = useState(0);
 
-    const [editingFile, setEditingFile] = useState<File | null>(null);
+    const [editingFile, setEditingFile] = useState<File | null | undefined>(null);
     const [isDirty, setDirty] = useState(false);
     const [showSaveConfirmDialog, setShowSaveDialog] = useState(false);
 
@@ -92,6 +99,13 @@ export function RegionEditorContainer(props: any) {
         horizontal: 'center',
     });
     const { vertical, horizontal, open } = state;
+
+    const init = () => {
+        setDirty(false);
+        setHashes({});
+        setRegionList(Array());
+        setHistoryList(Array());
+    }
 
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
@@ -146,7 +160,7 @@ export function RegionEditorContainer(props: any) {
     })();
 
     const getRegions = async () => {
-        if (!props.onlineMode) {
+        if (!props.selectedFile) {
             return;
         }
 
@@ -166,6 +180,7 @@ export function RegionEditorContainer(props: any) {
 
     useEffect(() => {
         if (!props.selectedFile) {
+            init();
             return;
         }
 
@@ -178,10 +193,6 @@ export function RegionEditorContainer(props: any) {
     }, [props.selectedFile]);
 
     useEffect(() => {
-        if (!props.onlineMode) {
-            return;
-        }
-
         getRegions();
     }, [props.onlineMode]);
 
@@ -218,6 +229,10 @@ export function RegionEditorContainer(props: any) {
     };
 
     const saveRegions = async () => {
+        if (!props.selectedFile) {
+            return;
+        }
+
         if (!regionList) {
             return;
         }
@@ -361,7 +376,7 @@ export function RegionEditorContainer(props: any) {
                     if (importInput.current) {
                         importInput.current.value = "";
                     }
-            };
+                };
 
                 fileReader.readAsText(file);
             }
@@ -497,7 +512,8 @@ export function RegionEditorContainer(props: any) {
             />
             <Grid container spacing={0} className={classes.grid}>
                 <Grid item xs={8} className={classes.regionEditor}>
-                    <RegionEditor file={editingFile}
+                    <RegionEditor
+                        file={editingFile}
                         selectedCategory={selectedCategory}
                         regionList={regionList}
                         selectedRegion={selectedRegion}

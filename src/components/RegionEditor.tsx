@@ -1,7 +1,9 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
-import { RegionEditorController } from '../RegionEditorController';
+import { RegionEditorController, Callback as RegionEditorCallback } from '../RegionEditorController';
 import * as manipulateImage from "../manipulateImage";
+import { Category } from '../Category';
+import { Region } from '../Region';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -21,7 +23,16 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 let regionEditorController: RegionEditorController | null = null;
 
-export function RegionEditor(props: any) {
+type Props = {
+    file: File | null | undefined,
+    selectedCategory: Category | undefined,
+    regionList: Array<Region> | undefined,
+    selectedRegion: Region | null,
+    callback: RegionEditorCallback,
+    undoEvent: any,
+}
+
+export function RegionEditor(props: Props) {
     const [cacheImage, setImage] = useState<HTMLImageElement | null>(null);
 
     const classes = useStyles();
@@ -68,10 +79,10 @@ export function RegionEditor(props: any) {
     }, [cacheImage]);
 
     useEffect(() => {
-        if (!canvas.current) {
+        if (!props.selectedCategory || !props.regionList) {
             return;
         }
-        if (!canvasContainer.current) {
+        if (!canvasContainer.current || !canvas.current) {
             return;
         }
 
@@ -84,7 +95,6 @@ export function RegionEditor(props: any) {
             regionEditorController = new RegionEditorController(
                 canvas.current,
                 image,
-                props.selectedCategory,
                 props.callback
             );
         }
@@ -120,6 +130,10 @@ export function RegionEditor(props: any) {
     }, [props.selectedRegion]);
 
     useEffect(() => {
+        if (!props.selectedCategory) {
+            return;
+        }
+
         if (regionEditorController) {
             regionEditorController.category = props.selectedCategory;
         }
