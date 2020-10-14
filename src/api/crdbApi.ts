@@ -14,7 +14,7 @@ const handleErrors = (response: any) => {
     case 401: throw Error('UNAUTHORIZED');
     case 500: throw Error('INTERNAL_SERVER_ERROR');
     case 502: throw Error('BAD_GATEWAY');
-    case 404: throw Error('NOT_FOUND');
+    case 404: throw Error('No region data found.');
     default: throw Error('UNHANDLED_ERROR');
   }
 }
