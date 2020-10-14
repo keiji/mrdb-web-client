@@ -166,6 +166,11 @@ export function RegionEditorContainer(props: Props) {
                 setState({ ...state, open: true });
                 break;
             }
+            default: {
+                setSnackbarText(`${error.message}`);
+                setState({ ...state, open: true });
+                break;
+            }
         }
     }
 
