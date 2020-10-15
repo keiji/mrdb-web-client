@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography, Tooltip } from '@material-ui/core';
 
-import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+
 import OpenDrawerIcon from '@material-ui/icons/ExpandLess';
 import CloseDrawerIcon from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';

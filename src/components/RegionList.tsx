@@ -5,13 +5,14 @@ import {
 } from '@material-ui/core';
 import React, { } from 'react';
 import { Region } from '../Region';
-import MoveOrderUp from '@material-ui/icons/ExpandLess';
-import MoveOrderDown from '@material-ui/icons/ExpandMore';
-import CategorySetting from './CategorySetting';
+import {CategorySetting, Callback as CategorySettingCallback} from './CategorySetting';
 import { Category } from '../Category';
+import { Label } from '../Label';
+
+import MoveOrderUpIcon from '@material-ui/icons/ExpandLess';
+import MoveOrderDownIcon from '@material-ui/icons/ExpandMore';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
-import { Label } from '../Label';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -24,15 +25,25 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-function RegionList(props: any) {
+type Props = {
+    file: File | null | undefined,
+    selectedCategory: Category | undefined,
+    regionList: Array<Region> | undefined,
+    selectedRegion: Region | null,
+    categoryList: Array<Category> | undefined,
+    labelList: Array<Label> | undefined,
+    callback: Callback,
+    categorySettingCallback: CategorySettingCallback
+}
+
+export function RegionList(props: Props) {
     const classes = useStyles();
 
     if (!props.regionList) {
-        return (<div></div>);
+        return (<Box className={classes.root}></Box>);
     }
 
-    const moveOrder = (fromIndex: number, toIndex: number): Array<Region> => {
-        const regionList = props.regionList;
+    const moveOrder = (regionList: Array<Region>, fromIndex: number, toIndex: number): Array<Region> => {
         const temp = regionList[toIndex];
         regionList[toIndex] = regionList[fromIndex];
         regionList[fromIndex] = temp;
@@ -40,24 +51,33 @@ function RegionList(props: any) {
     }
 
     const moveOrderDown = (index: number) => {
+        if (!props.regionList) {
+            return;
+        }
         const newIndex = index + 1;
-        const regionList = moveOrder(index, newIndex);
+        const regionList = moveOrder(props.regionList, index, newIndex);
 
         props.callback.onChangeRegionList(regionList);
     }
     const moveOrderUp = (index: number) => {
+        if (!props.regionList) {
+            return;
+        }
         const newIndex = index - 1;
-        const regionList = moveOrder(index, newIndex);
+        const regionList = moveOrder(props.regionList, index, newIndex);
 
         props.callback.onChangeRegionList(regionList);
     }
 
     const orderIcons = (index: number) => {
+        if (!props.regionList) {
+            return;
+        }
         if (index == 0) {
             return (
                 <TableCell>
                     <IconButton onClick={() => { moveOrderDown(index) }}>
-                        <MoveOrderDown />
+                        <MoveOrderDownIcon />
                     </IconButton>
                 </TableCell>
             );
@@ -65,7 +85,7 @@ function RegionList(props: any) {
             return (
                 <TableCell>
                     <IconButton onClick={() => { moveOrderUp(index) }}>
-                        <MoveOrderUp />
+                        <MoveOrderUpIcon />
                     </IconButton>
                 </TableCell>
             );
@@ -73,10 +93,10 @@ function RegionList(props: any) {
             return (
                 <TableCell>
                     <IconButton onClick={() => { moveOrderUp(index) }}>
-                        <MoveOrderUp />
+                        <MoveOrderUpIcon />
                     </IconButton>
                     <IconButton onClick={() => { moveOrderDown(index) }}>
-                        <MoveOrderDown />
+                        <MoveOrderDownIcon />
                     </IconButton>
                 </TableCell>
             );
@@ -96,11 +116,10 @@ function RegionList(props: any) {
     }
 
     const label = (labelValue: number) => {
-        const labelList: Array<Label> = props.labelList;
-        if (!labelList) {
+        if (!props.labelList) {
             return (<TableCell>{labelValue}</TableCell>);
         }
-        const label = labelList.filter((label: Label) => { return label.label == labelValue })[0];
+        const label = props.labelList.filter((label: Label) => { return label.label == labelValue })[0];
         let labelName: string
         if (label) {
             labelName = label.name;
@@ -151,8 +170,6 @@ function RegionList(props: any) {
         </Box>
     );
 }
-
-export default RegionList;
 
 export interface Callback {
     onChangeRegionList(regionList: Array<Region>): void

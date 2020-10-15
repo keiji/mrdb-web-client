@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
-import RegionList from './RegionList';
+import { RegionList } from './RegionList';
 
 import {
     AppBar, Button, Container, createStyles,
@@ -571,8 +571,6 @@ export function RegionEditorContainer(props: Props) {
         </React.Fragment>
     );
 }
-
-export default RegionEditorContainer;
 
 export interface Callback {
     onTurnOnlineRequested(): void

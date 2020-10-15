@@ -1,4 +1,4 @@
-import { createStyles, FormControl, IconButton, InputLabel, makeStyles, MenuItem, Select, Theme } from '@material-ui/core';
+import { createStyles, FormControl, InputLabel, makeStyles, MenuItem, Select, Theme } from '@material-ui/core';
 import React, { useEffect, useRef } from 'react';
 import { Category } from '../Category';
 import * as apis from "../api/crdbApi";
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-function CategorySetting(props: any) {
+export function CategorySetting(props: any) {
     const categorySelect = useRef(null);
 
     const classes = useStyles();
@@ -83,8 +83,6 @@ function CategorySetting(props: any) {
         </div>
     );
 }
-
-export default CategorySetting;
 
 export interface Callback {
     onCategoriesUpdated(categoryList: Array<Category>): void
