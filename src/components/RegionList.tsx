@@ -1,5 +1,9 @@
-import { Box, Container, createStyles, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme } from '@material-ui/core';
-import React, { useState } from 'react';
+import {
+    Box, createStyles, IconButton, makeStyles, Paper,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Theme
+} from '@material-ui/core';
+import React, { } from 'react';
 import { Region } from '../Region';
 import MoveOrderUp from '@material-ui/icons/ExpandLess';
 import MoveOrderDown from '@material-ui/icons/ExpandMore';
@@ -108,7 +112,7 @@ function RegionList(props: any) {
     }
 
     const showTable = () => {
-        if (!props.regionList|| props.regionList.length == 0) {
+        if (!props.regionList || props.regionList.length == 0) {
             return (<span></span>);
         }
 
