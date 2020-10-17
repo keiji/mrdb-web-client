@@ -107,11 +107,11 @@ export class RegionEditorController {
   };
 
   calcXRatio(offsetX: number) {
-    return Math.max(0.0, Math.min(1.0, (offsetX - this.marginLeft) / this.imageWidth));
+    return (offsetX - this.marginLeft) / this.imageWidth;
   }
 
   calcYRatio(offsetY: number) {
-    return Math.max(0.0, Math.min(1.0, (offsetY - this.marginTop) / this.imageHeight));
+    return (offsetY - this.marginTop) / this.imageHeight;
   }
 
   private clicking = false;
