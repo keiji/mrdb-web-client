@@ -196,9 +196,10 @@ export class RegionEditorController {
   }
 
   onKeyDownListener = (event) => {
-    event.preventDefault();
 
     if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' || event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+      event.preventDefault();
+
       const dist = TICK * (event.shiftKey ? 0.1 : 1.0);
 
       if (event.altKey) {
@@ -210,28 +211,38 @@ export class RegionEditorController {
       }
 
     } else if (event.key == 'Delete' || event.key == 'Clear' || event.key == 'Backspace' || event.key == 'd') {
+      event.preventDefault();
+
       if (!this.selectedRegion) {
         return;
       }
       this.deleteRegion(this.selectedRegion);
 
     } else if (!isNaN(parseInt(event.key))) {
+      event.preventDefault();
+
       if (!this.selectedRegion) {
         return;
       }
       this.changeRegionLabel(this.selectedRegion, parseInt(event.key));
 
     } else if (event.key == 'Escape') {
+      event.preventDefault();
+
       this.editingRegion = null;
     } else if (event.key == 'Enter') {
+      event.preventDefault();
+
       if (event.shiftKey) {
         this.selectPrevRegion();
       } else {
         this.selectNextRegion();
       }
     } else if (event.key == 'Meta') {
+      event.preventDefault();
       this.mode = 'expand';
     } else if (event.key == 'Alt') {
+      event.preventDefault();
       this.mode = 'shrink';
     } else {
       console.log(event.key);

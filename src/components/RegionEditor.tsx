@@ -41,8 +41,6 @@ export function RegionEditor(props: Props) {
     // add/remove eventListeners
     useEffect(() => {
         const resizeEvent = (event) => {
-            console.log('resize event');
-
             if (!canvas.current) {
                 return;
             }
@@ -77,8 +75,8 @@ export function RegionEditor(props: Props) {
             canvas.current.addEventListener("mouseup", regionEditorController.onMouseUpListener);
 
             // https://qiita.com/jay-es/items/cd30c73989659374698a
-            canvas.current.addEventListener("keydown", regionEditorController.onKeyDownListener);
-            canvas.current.addEventListener("keyup", regionEditorController.onKeyUpListener);
+            document.addEventListener("keydown", regionEditorController.onKeyDownListener);
+            document.addEventListener("keyup", regionEditorController.onKeyUpListener);
 
             regionEditorControllerRef.current = regionEditorController;
         }
@@ -89,8 +87,9 @@ export function RegionEditor(props: Props) {
                 canvas.current.removeEventListener("mousedown", regionEditorController.onMouseDownListener);
                 canvas.current.removeEventListener("mousemove", regionEditorController.onMouseMoveListener);
                 canvas.current.removeEventListener("mouseup", regionEditorController.onMouseUpListener);
-                canvas.current.removeEventListener("keydown", regionEditorController.onKeyDownListener);
-                canvas.current.removeEventListener("keyup", regionEditorController.onKeyUpListener);
+
+                document.removeEventListener("keydown", regionEditorController.onKeyDownListener);
+                document.removeEventListener("keyup", regionEditorController.onKeyUpListener);
             }
         };;
 

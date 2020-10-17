@@ -127,41 +127,32 @@ export function RegionEditorContainer(props: Props) {
         setHistoryList(Array());
     }
 
-    const onKeyDownListener = (event) => {
-        event.preventDefault();
-
-        if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
-            restoreEditHistory();
-        }
-    }
-
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
             setSelectedRegion(selectedRegion)
         }
         onAddedRegion(addedRegion: Region, newRegionList: Array<Region>) {
-            addEditHistory();
+            addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
         onDeletedRegion(deletedRegion: Region, newRegionList: Array<Region>) {
-            addEditHistory();
+            addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
         onChangedLabel(changedRegion: Region, newRegionList: Array<Region>) {
-            addEditHistory();
+            addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
         onDeformRegion(deformedRegion: Region, newRegionList: Array<Region>) {
-            console.log('1onDeformRegion ' + historyListRef.current.length);
-            addEditHistory();
+            addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
-            console.log('2onDeformRegion ' + historyListRef.current.length);
         }
     })();
 
     const regionListCallback = new (class implements RegionListCallback {
         onChangeRegionList(newRegionList: Region[]): void {
-            setRegionList([...newRegionList]);
+            addEditHistory(selectedRegionRef.current, regionListRef.current);
+            setRegionList(newRegionList);
         }
         onCategoriesUpdated(categoryList: Category[]): void {
             const newCategoryList = [...categoryList];
@@ -169,10 +160,6 @@ export function RegionEditorContainer(props: Props) {
         }
         onRegionSelected(region: Region): void {
             setSelectedRegion(region);
-        }
-        onSubmitRegionList(newRegionList: Region[]): void {
-            setRegionList([...newRegionList]);
-            submitRegions();
         }
     })();
 
@@ -227,6 +214,22 @@ export function RegionEditorContainer(props: Props) {
             handleError(error);
         }
     }
+
+    useEffect(() => {
+        const onKeyDownListener = (event) => {
+            event.preventDefault();
+
+            if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
+                restoreEditHistory();
+            }
+        }
+
+        document.addEventListener("keydown", onKeyDownListener);
+
+        return () => {
+            document.removeEventListener("keydown", onKeyDownListener);
+        };
+    });
 
     useEffect(() => {
         if (!props.selectedFile) {
@@ -284,23 +287,8 @@ export function RegionEditorContainer(props: Props) {
         setHistoryList(newHistoryList);
     }
 
-    const addEditHistory = () => {
-        if (!regionListRef.current || !historyListRef.current) {
-            return;
-        }
-
-        let copiedSelectedRegion: Region | null = null;
-        const copiedRegionList = regionListRef.current.map((region) => {
-            const r = region.deepCopy();
-            if (region == selectedRegionRef.current) {
-                copiedSelectedRegion = r;
-            }
-            return r;
-        });
-
-        console.log(`copiedRegionList ${copiedRegionList.length}`);
-
-        const newHistoryList = [...historyListRef.current, new EditHistory(copiedSelectedRegion, copiedRegionList)];
+    const addEditHistory = (selectedRegion, regionList) => {
+        const newHistoryList = [...historyListRef.current, new EditHistory(selectedRegion, regionList)];
         setHistoryList(newHistoryList);
     }
 
@@ -617,7 +605,7 @@ export function RegionEditorContainer(props: Props) {
                 anchorOrigin={{ vertical, horizontal }}
                 key={vertical + horizontal}
             />
-            <Grid container spacing={0} className={classes.grid} onKeyDown={onKeyDownListener}>
+            <Grid container spacing={0} className={classes.grid}>
                 <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor
                         file={editingFile}

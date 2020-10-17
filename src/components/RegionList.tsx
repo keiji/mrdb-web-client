@@ -43,10 +43,12 @@ export function RegionList(props: Props) {
     }
 
     const moveOrder = (regionList: Array<Region>, fromIndex: number, toIndex: number): Array<Region> => {
-        const temp = regionList[toIndex];
-        regionList[toIndex] = regionList[fromIndex];
-        regionList[fromIndex] = temp;
-        return regionList;
+        const resultRegionList = [...regionList];
+
+        const temp = resultRegionList[toIndex];
+        resultRegionList[toIndex] = resultRegionList[fromIndex];
+        resultRegionList[fromIndex] = temp;
+        return resultRegionList;
     }
 
     const moveOrderDown = (index: number) => {
