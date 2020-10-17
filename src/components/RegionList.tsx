@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 );
 
 type Props = {
-    file: File | null | undefined,
     selectedCategory: Category | undefined,
     regionList: Array<Region> | undefined,
     selectedRegion: Region | null,

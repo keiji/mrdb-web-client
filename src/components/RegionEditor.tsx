@@ -21,89 +21,105 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-let regionEditorController: RegionEditorController | null = null;
-
 type Props = {
     file: File | null | undefined,
     selectedCategory: Category | undefined,
     regionList: Array<Region> | undefined,
     selectedRegion: Region | null,
     callback: RegionEditorCallback,
-    undoEvent: any,
 }
 
 export function RegionEditor(props: Props) {
     const [cacheImage, setImage] = useState<HTMLImageElement | null>(null);
+    const regionEditorControllerRef = useRef<RegionEditorController | null>(null);
 
     const classes = useStyles();
 
     const canvasContainer = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
 
+    // add/remove eventListeners
+    useEffect(() => {
+        const resizeEvent = (event) => {
+            console.log('resize event');
+
+            if (!canvas.current) {
+                return;
+            }
+            if (!canvasContainer.current) {
+                return;
+            }
+
+            if (cacheImage && regionEditorControllerRef.current) {
+                canvas.current.width = canvasContainer.current.clientWidth;
+                canvas.current.height = canvasContainer.current.clientHeight;
+                regionEditorControllerRef.current.calcMargin(16);
+                regionEditorControllerRef.current.redraw();
+            }
+        };
+
+        window.addEventListener("resize", resizeEvent);
+
+        return () => {
+            window.removeEventListener("resize", resizeEvent);
+        }
+    });
+
+    useEffect(() => {
+        if (canvas.current) {
+            const regionEditorController = new RegionEditorController(
+                canvas.current,
+                props.callback
+            );
+
+            canvas.current.addEventListener("mousedown", regionEditorController.onMouseDownListener);
+            canvas.current.addEventListener("mousemove", regionEditorController.onMouseMoveListener);
+            canvas.current.addEventListener("mouseup", regionEditorController.onMouseUpListener);
+
+            // https://qiita.com/jay-es/items/cd30c73989659374698a
+            canvas.current.addEventListener("keydown", regionEditorController.onKeyDownListener);
+            canvas.current.addEventListener("keyup", regionEditorController.onKeyUpListener);
+
+            regionEditorControllerRef.current = regionEditorController;
+        }
+
+        return () => {
+            if (canvas.current && regionEditorControllerRef.current) {
+                const regionEditorController = regionEditorControllerRef.current;
+                canvas.current.removeEventListener("mousedown", regionEditorController.onMouseDownListener);
+                canvas.current.removeEventListener("mousemove", regionEditorController.onMouseMoveListener);
+                canvas.current.removeEventListener("mouseup", regionEditorController.onMouseUpListener);
+                canvas.current.removeEventListener("keydown", regionEditorController.onKeyDownListener);
+                canvas.current.removeEventListener("keyup", regionEditorController.onKeyUpListener);
+            }
+        };;
+
+    }, [canvas]);
+
     useEffect(() => {
         if (!props.file) {
             return;
         }
 
-        if (regionEditorController) {
-            regionEditorController.clearEditHistory();
-        }
-
         manipulateImage.loadImage(props.file, (image: HTMLImageElement) => {
-            if (!canvas.current) {
-                return;
-            }
-
             setImage(image);
         });
 
     }, [props.file]);
 
     useEffect(() => {
-        if (!props.undoEvent) {
-            return;
-        }
-        if (!regionEditorController) {
+        if (!canvas.current || !props.selectedCategory || !props.regionList) {
             return;
         }
 
-        regionEditorController.restoreEditHistory();
+        if (regionEditorControllerRef.current) {
+            regionEditorControllerRef.current.image = cacheImage;
+            regionEditorControllerRef.current.calcMargin(16);
 
-    }, [props.undoEvent]);
-
-    useEffect(() => {
-        if (regionEditorController) {
-            regionEditorController.destroy();
-            regionEditorController = null;
+            regionEditorControllerRef.current.category = props.selectedCategory;
+            regionEditorControllerRef.current.regionList = props.regionList;
+            regionEditorControllerRef.current.redraw();
         }
-    }, [cacheImage]);
-
-    useEffect(() => {
-        if (!props.selectedCategory || !props.regionList) {
-            return;
-        }
-        if (!canvasContainer.current || !canvas.current) {
-            return;
-        }
-
-        const image = cacheImage;
-        if (image == null) {
-            return;
-        }
-
-        if (!regionEditorController) {
-            regionEditorController = new RegionEditorController(
-                canvas.current,
-                image,
-                props.callback
-            );
-        }
-        regionEditorController.calcMargin(16);
-
-        regionEditorController.category = props.selectedCategory;
-        regionEditorController.regionList = props.regionList;
-        regionEditorController.redraw();
-
     }, [cacheImage, props.regionList]);
 
     useEffect(() => {
@@ -117,15 +133,15 @@ export function RegionEditor(props: Props) {
         canvas.current.width = canvasContainer.current.clientWidth;
         canvas.current.height = canvasContainer.current.clientHeight;
 
-        if (regionEditorController) {
-            regionEditorController.redraw();
+        if (regionEditorControllerRef.current) {
+            regionEditorControllerRef.current.redraw();
         }
     }, [canvas, canvasContainer]);
 
     useEffect(() => {
-        if (regionEditorController) {
-            regionEditorController.selectedRegion = props.selectedRegion;
-            regionEditorController.redraw();
+        if (regionEditorControllerRef.current) {
+            regionEditorControllerRef.current.selectedRegion = props.selectedRegion;
+            regionEditorControllerRef.current.redraw();
         }
     }, [props.selectedRegion]);
 
@@ -134,26 +150,10 @@ export function RegionEditor(props: Props) {
             return;
         }
 
-        if (regionEditorController) {
-            regionEditorController.category = props.selectedCategory;
+        if (regionEditorControllerRef.current) {
+            regionEditorControllerRef.current.category = props.selectedCategory;
         }
     }, [props.selectedCategory]);
-
-    window.addEventListener("resize", (event) => {
-        if (!canvas.current) {
-            return;
-        }
-        if (!canvasContainer.current) {
-            return;
-        }
-
-        if (cacheImage && regionEditorController) {
-            canvas.current.width = canvasContainer.current.clientWidth;
-            canvas.current.height = canvasContainer.current.clientHeight;
-            regionEditorController.calcMargin(16);
-            regionEditorController.redraw();
-        }
-    });
 
     return (
         <div className={classes.canvasContainer} ref={canvasContainer}>

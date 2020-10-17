@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import { RegionEditor } from './RegionEditor';
 import { RegionList } from './RegionList';
 
@@ -8,7 +8,7 @@ import {
     Grid, IconButton, makeStyles, Menu, MenuItem, Snackbar, SnackbarOrigin,
     Theme, Toolbar, Tooltip, Typography
 } from '@material-ui/core';
-import { Callback as RegionEditorCallback, EditHistory } from '../RegionEditorController';
+import { Callback as RegionEditorCallback } from '../RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
 
@@ -24,7 +24,17 @@ import ImportExportIcon from '@material-ui/icons/ImportExport';
 
 import { v4 as uuidv4 } from 'uuid';
 
-const APP_TITLE = "CRDB - Comic Region Database";
+export class EditHistory {
+    selectedRegion: Region | null
+    regionList: Array<Region>
+
+    constructor(selectedRegion: Region | null, regionList: Array<Region>) {
+        this.selectedRegion = selectedRegion;
+        this.regionList = regionList;
+    }
+}
+
+const APP_TITLE = "CRDB - Manga Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: `100%`,
@@ -65,12 +75,23 @@ type Props = {
     className: any
 }
 
+// https://stackoverflow.com/a/58439475
+function useStateRef<T>(initialValue: T): [T, Dispatch<SetStateAction<T>>, MutableRefObject<T>] {
+    const [value, setValue] = useState<T>(initialValue);
+
+    const ref = useRef<T>(value);
+
+    useEffect(() => {
+        ref.current = value;
+    }, [value]);
+
+    return [value, setValue, ref];
+}
+
 export function RegionEditorContainer(props: Props) {
     const classes = useStyles();
 
-    const idempotencyKey = uuidv4();
-
-    const [undoEvent, fireUndoEvent] = useState(0);
+    const idempotencyKey = useRef(uuidv4());
 
     const [editingFile, setEditingFile] = useState<File | null | undefined>(null);
     const [isDirty, setDirty] = useState(false);
@@ -86,10 +107,9 @@ export function RegionEditorContainer(props: Props) {
 
     const [labelList, setLabelList] = useState<Array<Label>>()
 
-    const [regionList, setRegionList] = useState<Array<Region>>()
-    const [historyList, setHistoryList] = useState<Array<EditHistory>>()
-
-    const [selectedRegion, setSelectedRegion] = useState<Region | null>(null)
+    const [selectedRegionState, setSelectedRegion, selectedRegionRef] = useStateRef<Region | null>(null);
+    const [regionListState, setRegionList, regionListRef] = useStateRef(new Array<Region>());
+    const [historyListState, setHistoryList, historyListRef] = useStateRef(new Array<EditHistory>());
 
     const [snackbarText, setSnackbarText] = useState<string>("Hello")
 
@@ -107,31 +127,41 @@ export function RegionEditorContainer(props: Props) {
         setHistoryList(Array());
     }
 
+    const onKeyDownListener = (event) => {
+        event.preventDefault();
+
+        if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
+            restoreEditHistory();
+        }
+    }
+
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
             setSelectedRegion(selectedRegion)
         }
-        onAddedRegion(addedRegion: Region, regionList: Array<Region>) {
-            setRegionList([...regionList]);
+        onAddedRegion(addedRegion: Region, newRegionList: Array<Region>) {
+            addEditHistory();
+            setRegionList(newRegionList);
         }
-        onDeletedRegion(deletedRegion: Region, regionList: Array<Region>) {
-            setRegionList([...regionList]);
+        onDeletedRegion(deletedRegion: Region, newRegionList: Array<Region>) {
+            addEditHistory();
+            setRegionList(newRegionList);
         }
-        onChangedLabel(changedRegion: Region, regionList: Array<Region>) {
-            setRegionList([...regionList]);
+        onChangedLabel(changedRegion: Region, newRegionList: Array<Region>) {
+            addEditHistory();
+            setRegionList(newRegionList);
         }
-        onHistoryUpdated(historyList: Array<EditHistory>) {
-            setHistoryList([...historyList]);
-        }
-        onRegionListUpdated(regionList: Array<Region>) {
-            setRegionList([...regionList]);
+        onDeformRegion(deformedRegion: Region, newRegionList: Array<Region>) {
+            console.log('1onDeformRegion ' + historyListRef.current.length);
+            addEditHistory();
+            setRegionList(newRegionList);
+            console.log('2onDeformRegion ' + historyListRef.current.length);
         }
     })();
 
     const regionListCallback = new (class implements RegionListCallback {
-        onChangeRegionList(regionList: Region[]): void {
-            const newRegionList = [...regionList];
-            setRegionList(newRegionList);
+        onChangeRegionList(newRegionList: Region[]): void {
+            setRegionList([...newRegionList]);
         }
         onCategoriesUpdated(categoryList: Category[]): void {
             const newCategoryList = [...categoryList];
@@ -140,8 +170,8 @@ export function RegionEditorContainer(props: Props) {
         onRegionSelected(region: Region): void {
             setSelectedRegion(region);
         }
-        onSubmitRegionList(regionList: Region[]): void {
-            setRegionList(regionList);
+        onSubmitRegionList(newRegionList: Region[]): void {
+            setRegionList([...newRegionList]);
             submitRegions();
         }
     })();
@@ -181,6 +211,10 @@ export function RegionEditorContainer(props: Props) {
 
         setRegionList(new Array<Region>());
 
+        if (!props.onlineMode) {
+            return;
+        }
+
         try {
             const h = await apis.fetchHash(props.selectedFile);
             setHashes(h);
@@ -217,24 +251,64 @@ export function RegionEditorContainer(props: Props) {
             return;
         }
 
+        clearEditHistory();
         getRegions();
+
     }, [editingFile]);
 
     useEffect(() => {
-        if (!historyList) {
+        const dirty = historyListState.length > 0;
+        setDirty(dirty);
+
+    }, [historyListState]);
+
+    const clearEditHistory = () => {
+        console.log('clearEditHistory');
+
+        setHistoryList(Array());
+    }
+
+    const restoreEditHistory = () => {
+        if (historyListState.length == 0) {
             return;
         }
 
-        const dirty = historyList.length > 0;
-        setDirty(dirty);
+        const lastHistoryIndex = historyListState.length - 1;
+        const latestHistory = historyListState[lastHistoryIndex];
+        setRegionList(latestHistory.regionList);
+        setSelectedRegion(latestHistory.selectedRegion);
 
-    }, [historyList]);
+        const newHistoryList = [...historyListState.slice(0, lastHistoryIndex)];
+        console.log(newHistoryList);
+
+        setHistoryList(newHistoryList);
+    }
+
+    const addEditHistory = () => {
+        if (!regionListRef.current || !historyListRef.current) {
+            return;
+        }
+
+        let copiedSelectedRegion: Region | null = null;
+        const copiedRegionList = regionListRef.current.map((region) => {
+            const r = region.deepCopy();
+            if (region == selectedRegionRef.current) {
+                copiedSelectedRegion = r;
+            }
+            return r;
+        });
+
+        console.log(`copiedRegionList ${copiedRegionList.length}`);
+
+        const newHistoryList = [...historyListRef.current, new EditHistory(copiedSelectedRegion, copiedRegionList)];
+        setHistoryList(newHistoryList);
+    }
 
     const submitRegions = async () => {
         if (!props.selectedFile) {
             return;
         }
-        if (!regionList) {
+        if (!regionListState) {
             return;
         }
 
@@ -247,7 +321,7 @@ export function RegionEditorContainer(props: Props) {
                 return;
             }
 
-            await apis.submitPageRegions(idempotencyKey, hashes, regionList);
+            await apis.submitPageRegions(idempotencyKey.current, hashes, regionListState);
 
             setSnackbarText("Save completed.");
             setState({ ...state, open: true });
@@ -262,11 +336,11 @@ export function RegionEditorContainer(props: Props) {
             return;
         }
 
-        if (!regionList) {
+        if (!regionListState) {
             return;
         }
 
-        const regionsObj = convertRegionsToPathRegions(regionList);
+        const regionsObj = convertRegionsToPathRegions(regionListState);
         const jsonObj = {
             "file": props.selectedFile.name,
             "regions": regionsObj
@@ -305,15 +379,15 @@ export function RegionEditorContainer(props: Props) {
     }
 
     const undo = () => {
-        fireUndoEvent(Date.now());
+        restoreEditHistory();
     }
 
     const menu = () => {
         const showUndoMenu = () => {
-            if (!historyList) {
+            if (!historyListState) {
                 return (<span></span>);
             }
-            if (historyList.length == 0) {
+            if (historyListState.length == 0) {
                 return (<span></span>);
             }
 
@@ -383,6 +457,10 @@ export function RegionEditorContainer(props: Props) {
             const handleChangeFile = (event) => {
                 event.preventDefault();
 
+                if (!regionListState) {
+                    return;
+                }
+
                 const files = event.target.files;
                 if (!files) {
                     return;
@@ -411,7 +489,7 @@ export function RegionEditorContainer(props: Props) {
             }
 
             const showExportMenu = () => {
-                const disabled = (!regionList || regionList.length == 0);
+                const disabled = (!regionListRef.current || regionListRef.current.length == 0);
                 if (disabled) {
                     return (<MenuItem disabled onClick={handleExport}>Export</MenuItem>);
                 }
@@ -539,22 +617,21 @@ export function RegionEditorContainer(props: Props) {
                 anchorOrigin={{ vertical, horizontal }}
                 key={vertical + horizontal}
             />
-            <Grid container spacing={0} className={classes.grid}>
+            <Grid container spacing={0} className={classes.grid} onKeyDown={onKeyDownListener}>
                 <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor
                         file={editingFile}
                         selectedCategory={selectedCategory}
-                        regionList={regionList}
-                        selectedRegion={selectedRegion}
+                        regionList={regionListState}
+                        selectedRegion={selectedRegionState}
                         callback={regionEditorCallback}
-                        undoEvent={undoEvent}
                     />
                 </Grid>
                 <Grid item xs={4} className={classes.regionList} >
                     <Container>
                         <RegionList
-                            regionList={regionList}
-                            selectedRegion={selectedRegion}
+                            regionList={regionListState}
+                            selectedRegion={selectedRegionState}
                             categoryList={categoryList}
                             selectedCategory={selectedCategory}
                             labelList={labelList}

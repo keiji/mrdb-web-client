@@ -9,16 +9,6 @@ const MARKER_LENGTH = 8;
 
 type Mode = 'move' | 'expand' | 'shrink';
 
-export class EditHistory {
-  selectedRegion: Region | null
-  regionList: Array<Region>
-
-  constructor(selectedRegion: Region | null, regionList: Array<Region>) {
-    this.selectedRegion = selectedRegion;
-    this.regionList = regionList;
-  }
-}
-
 export class RegionEditorController {
 
   category: Category = new Category(0, 'Unknown', 0);
@@ -27,10 +17,9 @@ export class RegionEditorController {
   private mode: Mode = 'move';
 
   regionList = Array<Region>();
-  historyList = Array<EditHistory>();
+  image: HTMLImageElement | null = null;
 
   private canvas: HTMLCanvasElement
-  private image: HTMLImageElement
 
   private callback: Callback = new (class implements Callback {
     onSelectedRegion(selectedRegion: Region) {
@@ -45,10 +34,7 @@ export class RegionEditorController {
     onChangedLabel(deletedRegion: Region, regionList: Array<Region>) {
       // Do nothing
     }
-    onHistoryUpdated(historyList: Array<EditHistory>) {
-      // Do nothing
-    }
-    onRegionListUpdated(regionList: Array<Region>) {
+    onDeformRegion(deformedRegion: Region, regionList: Array<Region>) {
       // Do nothing
     }
   });
@@ -72,7 +58,6 @@ export class RegionEditorController {
   private _selectedRegion: Region | null = null;
   set selectedRegion(region: Region | null) {
     this._selectedRegion = region;
-    this.callback.onSelectedRegion(region);
   }
   get selectedRegion(): Region | null {
     return this._selectedRegion;
@@ -86,9 +71,17 @@ export class RegionEditorController {
   private marginLeft = 0;
   private marginRight = 0;
 
+  destroy() {
+    this.image = null;
+  }
+
   calcMargin(
     minMarginPixel: number
   ) {
+    if (!this.image) {
+      return;
+    }
+
     const ratio = Math.min(
       this.canvas.width / this.image.width,
       this.canvas.height / this.image.height
@@ -123,7 +116,7 @@ export class RegionEditorController {
 
   private clicking = false;
 
-  onMouseDownListener = (event: MouseEvent) => {
+  onMouseDownListener = (event) => {
     this.clicking = true;
 
     const x = this.calcXRatio(event.offsetX);
@@ -133,15 +126,15 @@ export class RegionEditorController {
 
     if (nearestRegionArray.length > 0) {
       this.selectedRegion = nearestRegionArray[0];
-      this.callback.onSelectedRegion(this.selectedRegion);
     } else {
       this.selectedRegion = null;
       this.editingRegion = this.createRegion(x, y);
     }
+    this.callback.onSelectedRegion(this.selectedRegion);
     this.redraw();
   };
 
-  onMouseMoveListener = (event: MouseEvent) => {
+  onMouseMoveListener = (event) => {
 
     const x = this.calcXRatio(event.offsetX);
     const y = this.calcYRatio(event.offsetY);
@@ -164,7 +157,7 @@ export class RegionEditorController {
     }
   }
 
-  onMouseUpListener = (event: MouseEvent) => {
+  onMouseUpListener = (event) => {
     this.clicking = false;
 
     const region = this.editingRegion
@@ -176,13 +169,7 @@ export class RegionEditorController {
         return;
       }
 
-      this.selectedRegion = region;
-
-      this.addEditHistory();
-      this.regionList.push(region);
-
-      this.callback.onAddedRegion(this.selectedRegion, this.regionList)
-      this.callback.onSelectedRegion(this.selectedRegion)
+      this.addRegion(region);
     }
   }
 
@@ -232,9 +219,8 @@ export class RegionEditorController {
       if (!this.selectedRegion) {
         return;
       }
-      this.addEditHistory();
-      this.selectedRegion.label = parseInt(event.key);
-      this.callback.onChangedLabel(this.selectedRegion, this.regionList)
+      this.changeRegionLabel(this.selectedRegion, parseInt(event.key));
+
     } else if (event.key == 'Escape') {
       this.editingRegion = null;
     } else if (event.key == 'Enter') {
@@ -243,8 +229,6 @@ export class RegionEditorController {
       } else {
         this.selectNextRegion();
       }
-    } else if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
-      this.restoreEditHistory();
     } else if (event.key == 'Meta') {
       this.mode = 'expand';
     } else if (event.key == 'Alt') {
@@ -268,52 +252,26 @@ export class RegionEditorController {
     this.redraw();
   }
 
-  clearEditHistory() {
-    this.historyList = Array();
-    this.callback.onHistoryUpdated(this.historyList);
-  }
+  addRegion(region: Region) {
+    this.regionList = [...this.regionList, region];
+    this.callback.onAddedRegion(region, this.regionList)
 
-  restoreEditHistory() {
-    if (this.historyList.length == 0) {
-      return;
-    }
-
-    const lastHistoryIndex = this.historyList.length - 1;
-    const latestHistory = this.historyList[lastHistoryIndex];
-    this.regionList = latestHistory.regionList;
-    this.callback.onRegionListUpdated(this.regionList);
-
-    this.historyList = [...this.historyList.slice(0, lastHistoryIndex)];
-    this.callback.onHistoryUpdated(this.historyList);
-
-    this.selectedRegion = latestHistory.selectedRegion;
-  }
-
-  private addEditHistory() {
-    let copiedSelectedRegion: Region | null = null;
-
-    const copiedRegionList = this.regionList.map((region) => {
-      const r = region.deepCopy();
-      if (region == this.selectedRegion) {
-        copiedSelectedRegion = r;
-      }
-      return r;
-    });
-
-    this.historyList.push(new EditHistory(copiedSelectedRegion, copiedRegionList));
-
-    this.callback.onHistoryUpdated(this.historyList);
+    this.selectedRegion = region;
+    this.callback.onSelectedRegion(region);
   }
 
   deleteRegion(region: Region) {
-    this.addEditHistory();
-
-    const index = this.regionList.indexOf(region)
-    if (index >= 0) {
-      this.regionList.splice(index, 1)
+    const deleteIndex = this.regionList.indexOf(region)
+    if (deleteIndex >= 0) {
+      this.regionList = [
+        ...this.regionList.slice(0, deleteIndex),
+        ...this.regionList.slice(deleteIndex + 1, this.regionList.length)
+      ];
     }
     this.callback.onDeletedRegion(region, this.regionList)
+
     this.selectedRegion = null;
+    this.callback.onSelectedRegion(null);
   }
 
   moveRegion(count: number) {
@@ -331,6 +289,7 @@ export class RegionEditorController {
       const toIndex = index + count;
       if (toIndex >= 0 && toIndex < this.regionList.length) {
         this.selectedRegion = this.regionList[toIndex];
+        this.callback.onSelectedRegion(this.selectedRegion);
       }
     }
   }
@@ -345,29 +304,10 @@ export class RegionEditorController {
 
   constructor(
     canvas: HTMLCanvasElement,
-    image: HTMLImageElement,
     callback: Callback,
   ) {
     this.canvas = canvas;
-    this.image = image;
-
     this.callback = callback;
-
-    document.addEventListener("mousedown", this.onMouseDownListener);
-    document.addEventListener("mousemove", this.onMouseMoveListener);
-    document.addEventListener("mouseup", this.onMouseUpListener);
-
-    // https://qiita.com/jay-es/items/cd30c73989659374698a
-    document.addEventListener("keydown", this.onKeyDownListener);
-    document.addEventListener("keyup", this.onKeyUpListener);
-  }
-
-  destroy() {
-    document.removeEventListener("mousedown", this.onMouseDownListener);
-    document.removeEventListener("mousemove", this.onMouseMoveListener);
-    document.removeEventListener("mouseup", this.onMouseUpListener);
-    document.removeEventListener("keydown", this.onKeyDownListener);
-    document.removeEventListener("keyup", this.onKeyUpListener);
   }
 
   createRegion(x: number, y: number) {
@@ -427,10 +367,17 @@ export class RegionEditorController {
   }
 
   deform(left: number, top: number, right: number, bottom: number): boolean {
-    const rect = this.selectedRegion?.rectangle
-    if (!rect) {
+    if (!this.selectedRegion) {
       return false;
     }
+
+    const deformRegionIndex = this.regionList.indexOf(this.selectedRegion);
+    if (deformRegionIndex < 0) {
+      return false;
+    }
+
+    const deformRegion = this.selectedRegion.deepCopy();
+    const rect = deformRegion.rectangle;
 
     let newLeft = rect.left + left;
     let newTop = rect.top + top;
@@ -449,17 +396,54 @@ export class RegionEditorController {
       return false;
     }
 
-    this.addEditHistory();
-
     rect.left = newLeft;
     rect.top = newTop;
     rect.right = newRight;
     rect.bottom = newBottom;
 
+    const newRegionList = [
+      ...this.regionList.slice(0, deformRegionIndex),
+      deformRegion,
+      ...this.regionList.slice(deformRegionIndex + 1, this.regionList.length)
+    ];
+    this.regionList = newRegionList;
+    this.selectedRegion = deformRegion;
+
+    this.callback.onDeformRegion(deformRegion, this.regionList);
+    this.callback.onSelectedRegion(this.selectedRegion);
+
+    return true;
+  }
+
+  changeRegionLabel(region: Region, label: number) {
+    const labelRegionIndex = this.regionList.indexOf(region);
+    if (labelRegionIndex < 0) {
+      return false;
+    }
+
+    const labelRegion = region.deepCopy();
+    labelRegion.label = label;
+
+    const newRegionList = [
+      ...this.regionList.slice(0, labelRegionIndex),
+      labelRegion,
+      ...this.regionList.slice(labelRegionIndex + 1, this.regionList.length)
+    ];
+    this.regionList = newRegionList;
+    this.selectedRegion = labelRegion;
+
+    this.callback.onChangedLabel(labelRegion, this.regionList);
+
     return true;
   }
 
   redraw() {
+    console.log('redraw');
+
+    if (!this.image) {
+      return;
+    }
+
     const ctx = this.canvas.getContext("2d");
     if (ctx === null) {
       return;
@@ -572,9 +556,9 @@ export class RegionEditorController {
 
 export interface Callback {
   onSelectedRegion(region: Region | null);
-  onAddedRegion(region: Region, regionList: Array<Region>);
-  onDeletedRegion(region: Region, regionList: Array<Region>);
   onChangedLabel(region: Region, regionList: Array<Region>);
-  onHistoryUpdated(historyList: Array<EditHistory>);
-  onRegionListUpdated(regionList: Array<Region>);
+
+  onAddedRegion(addedRegion: Region, regionList: Array<Region>);
+  onDeletedRegion(deletedRegion: Region, regionList: Array<Region>);
+  onDeformRegion(deformedRegion: Region, regionList: Array<Region>);
 }
