@@ -1,6 +1,6 @@
-import { convertRegionsToPathRegions, convertPointsToRegions, Region } from '../Region';
-import { Category } from '../Category';
-import { Label } from '../Label';
+import { convertRegionsToPathRegions, convertPointsToRegions, Region } from '../entities/Region';
+import { Category } from '../entities/Category';
+import { Label } from '../entities/Label';
 
 const BASE_API_ENDPOINT = 'https://crdb.keiji.dev/api/v1'
 

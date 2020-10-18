@@ -1,9 +1,9 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import React, { useEffect, useRef, useState } from 'react';
-import { RegionEditorController, Callback as RegionEditorCallback } from '../RegionEditorController';
-import * as manipulateImage from "../manipulateImage";
-import { Category } from '../Category';
-import { Region } from '../Region';
+import { RegionEditorController, Callback as RegionEditorCallback } from './RegionEditorController';
+import * as manipulateImage from "../../manipulateImage";
+import { Category } from '../../entities/Category';
+import { Region } from '../../entities/Region';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {

@@ -1,5 +1,4 @@
 import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
-import { RegionEditor } from './RegionEditor';
 import { RegionList } from './RegionList';
 
 import {
@@ -8,14 +7,15 @@ import {
     Grid, IconButton, makeStyles, Menu, MenuItem, Snackbar, SnackbarOrigin,
     Theme, Toolbar, Tooltip, Typography
 } from '@material-ui/core';
-import { Callback as RegionEditorCallback } from '../RegionEditorController';
+import { Callback as RegionEditorCallback } from './RegionEditor/RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
 
-import { convertPointsToRegions, convertRegionsToPathRegions, Region } from '../Region';
 import * as apis from "../api/crdbApi";
-import { Category } from '../Category';
-import { Label } from '../Label';
+import { convertPointsToRegions, convertRegionsToPathRegions, Region } from '../entities/Region';
+import { Label } from '../entities/Label';
+import { Category } from '../entities/Category';
+import { RegionEditor } from './RegionEditor/index';
 
 import UndoIcon from '@material-ui/icons/Undo';
 import BackupIcon from '@material-ui/icons/Backup';
@@ -242,7 +242,7 @@ export function RegionEditorContainer(props: Props) {
             return;
         }
 
-        setEditingFile(props.selectedFile)
+        setEditingFile(props.selectedFile);
     }, [props.selectedFile]);
 
     useEffect(() => {
@@ -254,6 +254,7 @@ export function RegionEditorContainer(props: Props) {
             return;
         }
 
+        idempotencyKey.current = uuidv4();
         clearEditHistory();
         getRegions();
 

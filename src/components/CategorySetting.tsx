@@ -1,8 +1,9 @@
 import { createStyles, FormControl, InputLabel, makeStyles, MenuItem, Select, Theme } from '@material-ui/core';
 import React, { useEffect, useRef } from 'react';
-import { Category } from '../Category';
+
+import { Category } from '../entities/Category';
 import * as apis from "../api/crdbApi";
-import { Label } from '../Label';
+import { Label } from '../entities/Label';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {

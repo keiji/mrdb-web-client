@@ -4,10 +4,11 @@ import {
     Theme
 } from '@material-ui/core';
 import React, { } from 'react';
-import { Region } from '../Region';
+
 import {CategorySetting, Callback as CategorySettingCallback} from './CategorySetting';
-import { Category } from '../Category';
-import { Label } from '../Label';
+import { Category } from '../entities/Category';
+import { Region } from '../entities/Region';
+import { Label } from '../entities/Label';
 
 import MoveOrderUpIcon from '@material-ui/icons/ExpandLess';
 import MoveOrderDownIcon from '@material-ui/icons/ExpandMore';

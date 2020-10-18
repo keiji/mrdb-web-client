@@ -1,6 +1,7 @@
-import { Category } from './Category';
-import { Rectangle } from "./Rectangle";
-import { Region } from './Region';
+import { Category } from '../../entities/Category';
+import { Rectangle } from '../../entities/Rectangle';
+import { Region } from '../../entities/Region';
+
 
 const TICK = 0.01;
 const NEIGHBOR_THRESHOLD = 0.005;
