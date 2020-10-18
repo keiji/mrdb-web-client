@@ -147,6 +147,7 @@ export class RegionEditorController {
 
     } else if (!this.clicking) {
       const nearestRegionArray = this.nearestRegion(x, y);
+
       if (nearestRegionArray.length > 0) {
         this.focusedRegion = nearestRegionArray[0];
       } else {
@@ -449,8 +450,6 @@ export class RegionEditorController {
   }
 
   redraw() {
-    console.log('redraw');
-
     if (!this.image) {
       return;
     }

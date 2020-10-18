@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { Box, Container, GridList, IconButton } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -84,12 +84,7 @@ export function ImageList(props: Props) {
 
     const fileInput = useRef<HTMLInputElement>(null)
 
-    useEffect(() => {
-        console.log("previewImages has changed.");
-    }, [previewImages])
-
     const showFileDialog = () => {
-        console.log('showFileDialog');
         const fileInputSnapshot = fileInput.current;
         if (!fileInputSnapshot) {
             return;

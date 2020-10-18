@@ -266,8 +266,6 @@ export function RegionEditorContainer(props: Props) {
     }, [historyListState]);
 
     const clearEditHistory = () => {
-        console.log('clearEditHistory');
-
         setHistoryList(Array());
     }
 
@@ -282,8 +280,6 @@ export function RegionEditorContainer(props: Props) {
         setSelectedRegion(latestHistory.selectedRegion);
 
         const newHistoryList = [...historyListState.slice(0, lastHistoryIndex)];
-        console.log(newHistoryList);
-
         setHistoryList(newHistoryList);
     }
 
