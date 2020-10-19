@@ -34,7 +34,7 @@ export class EditHistory {
     }
 }
 
-const APP_TITLE = "CRDB - Manga Region Database";
+const APP_TITLE = "MRDB - Manga Region Database";
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         width: `100%`,
