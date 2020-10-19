@@ -206,7 +206,7 @@ export function RegionEditorContainer(props: Props) {
             const h = await apis.fetchHash(props.selectedFile);
             setHashes(h);
 
-            const result = await apis.fetchPageRegions(h);
+            const result = await apis.fetchPageRegions(h, selectedCategory);
             if (h === result.hashes) {
                 setRegionList(result.regions);
             }
