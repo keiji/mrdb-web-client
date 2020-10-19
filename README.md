@@ -1,3 +1,41 @@
+Manga Region Database(MRDB) - Web client
+========
+
+Annotation editor for creating machine learning dataset.
+
+Mainly this project is for MRDB(Manga Region Database) system.
+
+
+Agreement(Online mode)
+=======
+In online mode, image files will be uploaded to our server for generate image-ids by "imagehash" algorithm.
+And image files will be stored for improving our services.
+
+ROI(Region of Interest) data and image-ids will be uploaded, stored, and redistribute for all users.
+
+We <strong>DO NOT</strong> redistribute your image files.
+
+
+License
+=======
+
+    Copyright 2020 Keiji ARIYAMA (C-LIS CO., LTD.)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+
+----
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
