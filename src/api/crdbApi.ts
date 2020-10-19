@@ -2,7 +2,7 @@ import { convertRegionsToPathRegions, convertPointsToRegions, Region } from '../
 import { Category } from '../entities/Category';
 import { Label } from '../entities/Label';
 
-const BASE_API_ENDPOINT = 'https://crdb.keiji.dev/api/v1'
+const BASE_API_ENDPOINT = 'https://mrdb.keiji.dev/api/v1'
 
 const handleErrors = (response: any) => {
   if (response.ok) {

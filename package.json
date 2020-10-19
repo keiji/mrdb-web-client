@@ -1,5 +1,5 @@
 {
-  "name": "crdb-client",
+  "name": "mrdb-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
