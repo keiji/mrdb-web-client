@@ -1,7 +1,7 @@
 Manga Region Database(MRDB) - Web client
 ========
 
-Annotation editor for creating machine learning dataset.
+Web-based Annotation editor for creating machine learning dataset(As like [Region Cropper](https://github.com/keiji/region_cropper)).
 
 Mainly this project is for MRDB(Manga Region Database) system.
 
