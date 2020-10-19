@@ -5,6 +5,8 @@ Web-based Annotation editor for creating machine learning dataset(As like [Regio
 
 Mainly this project is for MRDB(Manga Region Database) system.
 
+![Screenshot1](./images/screenshot1.png)
+
 
 Agreement(Online mode)
 =======
