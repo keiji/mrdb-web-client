@@ -94,6 +94,8 @@ export function RegionEditorContainer(props: Props) {
     const idempotencyKey = useRef(uuidv4());
 
     const [editingFile, setEditingFile] = useState<File | null | undefined>(null);
+    const [editingCategory, setEditingCategory] = useState<Category>()
+
     const [isDirty, setDirty] = useState(false);
     const [showSaveConfirmDialog, setShowSaveDialog] = useState(false);
 
@@ -246,6 +248,19 @@ export function RegionEditorContainer(props: Props) {
     }, [props.selectedFile]);
 
     useEffect(() => {
+        if (!selectedCategory) {
+            return;
+        }
+
+        if (isDirty) {
+            setShowSaveDialog(true);
+            return;
+        }
+
+        setEditingCategory(selectedCategory);
+    }, [selectedCategory]);
+
+    useEffect(() => {
         getRegions();
     }, [props.onlineMode]);
 
@@ -258,7 +273,7 @@ export function RegionEditorContainer(props: Props) {
         clearEditHistory();
         getRegions();
 
-    }, [editingFile]);
+    }, [editingFile, editingCategory]);
 
     useEffect(() => {
         const dirty = historyListState.length > 0;
@@ -531,6 +546,7 @@ export function RegionEditorContainer(props: Props) {
             setRegionList(Array());
             setShowSaveDialog(false);
             setEditingFile(props.selectedFile);
+            setEditingCategory(selectedCategory);
         }
 
         const handleDiscard = () => {
@@ -538,6 +554,7 @@ export function RegionEditorContainer(props: Props) {
 
             setShowSaveDialog(false);
             setEditingFile(props.selectedFile);
+            setEditingCategory(selectedCategory);
         }
 
         const showSaveButton = () => {
@@ -606,7 +623,7 @@ export function RegionEditorContainer(props: Props) {
                 <Grid item xs={8} className={classes.regionEditor}>
                     <RegionEditor
                         file={editingFile}
-                        selectedCategory={selectedCategory}
+                        selectedCategory={editingCategory}
                         regionList={regionListState}
                         selectedRegion={selectedRegionState}
                         callback={regionEditorCallback}
@@ -618,7 +635,7 @@ export function RegionEditorContainer(props: Props) {
                             regionList={regionListState}
                             selectedRegion={selectedRegionState}
                             categoryList={categoryList}
-                            selectedCategory={selectedCategory}
+                            selectedCategory={editingCategory}
                             labelList={labelList}
                             callback={regionListCallback}
                             categorySettingCallback={categorySettingCallback}
