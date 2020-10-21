@@ -329,7 +329,7 @@ export class RegionEditorController {
     editingRectangle.right = x;
     editingRectangle.top = y;
     editingRectangle.bottom = y;
-    return new Region(this.category.id, this.label, editingRectangle)
+    return new Region(-1, this.category.id, this.label, editingRectangle)
   }
 
   shrink(key: string, dist: number): boolean {

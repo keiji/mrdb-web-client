@@ -78,7 +78,20 @@ export async function fetchPageRegions(imageIds: {}, category: Category | undefi
   };
 }
 
-export async function submitPageRegions(idempotencyKey: string, hashes: {}, regions: Array<Region>) {
+function submitPageRegionsUrl(category: Category | undefined) {
+  let url = BASE_API_ENDPOINT + "/page";
+  if (category) {
+    url += "?category_id=" + category.id;
+  }
+  return url;
+}
+
+export async function submitPageRegions(
+  idempotencyKey: string,
+  hashes: {},
+  regions: Array<Region>,
+  category: Category | undefined
+) {
 
   const regionsObj = convertRegionsToPathRegions(regions);
   const jsonObj = {
@@ -92,7 +105,7 @@ export async function submitPageRegions(idempotencyKey: string, hashes: {}, regi
 
   const body: string = JSON.stringify(jsonObj);
 
-  const response = await fetch(BASE_API_ENDPOINT + "/page", {
+  const response = await fetch(submitPageRegionsUrl(category), {
     method: 'POST',
     headers: {
       "Idempotency-Key": idempotencyKey

@@ -2,11 +2,13 @@ import { Rectangle } from './Rectangle'
 
 export class Region {
 
+    id: number;
     categoryId: number
     label: number
     rectangle: Rectangle
 
-    constructor(categoryId: number, label: number, rectangle: Rectangle) {
+    constructor(id: number, categoryId: number, label: number, rectangle: Rectangle) {
+        this.id = id;
         this.categoryId = categoryId;
         this.label = label;
         this.rectangle = rectangle;
@@ -38,7 +40,7 @@ export class Region {
     }
 
     deepCopy(): Region {
-        return new Region(this.categoryId, this.label, this.rectangle.deepCopy());
+        return new Region(this.id, this.categoryId, this.label, this.rectangle.deepCopy());
     }
 }
 
@@ -69,6 +71,7 @@ function verticalPoints(points: Array<{}>): Array<number> {
 
 export function convertPointsToRegions(regions): Array<Region> {
     return regions.map((regionObj: any) => {
+        const id = regionObj['id'] ? regionObj['id'] : -1;
         const categoryId = regionObj['category_id'];
         const label = regionObj['label'];
 
@@ -87,6 +90,6 @@ export function convertPointsToRegions(regions): Array<Region> {
         rectangle.bottom = bottom;
         rectangle.validate()
 
-        return new Region(categoryId, label, rectangle);
+        return new Region(id, categoryId, label, rectangle);
     });
 }

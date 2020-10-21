@@ -321,7 +321,7 @@ export function RegionEditorContainer(props: Props) {
                 return;
             }
 
-            await apis.submitPageRegions(idempotencyKey.current, hashes, regionListState);
+            await apis.submitPageRegions(idempotencyKey.current, hashes, regionListState, selectedCategory);
 
             setSnackbarText("Save completed.");
             setState({ ...state, open: true });
