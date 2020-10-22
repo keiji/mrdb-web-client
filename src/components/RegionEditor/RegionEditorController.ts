@@ -12,12 +12,12 @@ type Mode = 'move' | 'expand' | 'shrink';
 
 export class RegionEditorController {
 
-  category: Category = new Category(0, 'Unknown', 0);
+  category: Category | null | undefined = new Category(0, 'Unknown', 0);
   label = 0;
 
   private mode: Mode = 'move';
 
-  regionList = Array<Region>();
+  regionList: Array<Region> | null | undefined = Array();
   image: HTMLImageElement | null = null;
 
   private canvas: HTMLCanvasElement
@@ -124,6 +124,9 @@ export class RegionEditorController {
     const y = this.calcYRatio(event.offsetY);
 
     const nearestRegionArray = this.nearestRegion(x, y);
+    if (!nearestRegionArray) {
+      return;
+    }
 
     if (nearestRegionArray.length > 0) {
       this.selectedRegion = nearestRegionArray[0];
@@ -148,6 +151,9 @@ export class RegionEditorController {
 
     } else if (!this.clicking) {
       const nearestRegionArray = this.nearestRegion(x, y);
+      if (!nearestRegionArray) {
+        return;
+      }
 
       if (nearestRegionArray.length > 0) {
         this.focusedRegion = nearestRegionArray[0];
@@ -176,6 +182,10 @@ export class RegionEditorController {
   }
 
   nearestRegion(x: number, y: number) {
+    if (!this.regionList) {
+      return null;
+    }
+
     const filteredRegion = this.regionList.filter((region) => {
       return region.containsPoint(x, y);
     }).filter((region) => {
@@ -266,7 +276,9 @@ export class RegionEditorController {
   }
 
   addRegion(region: Region) {
-    this.regionList = [...this.regionList, region];
+    const list = this.regionList ? this.regionList : Array();
+
+    this.regionList = [...list, region];
     this.callback.onAddedRegion(region, this.regionList)
 
     this.selectedRegion = region;
@@ -274,6 +286,10 @@ export class RegionEditorController {
   }
 
   deleteRegion(region: Region) {
+    if (!this.regionList) {
+      return;
+    }
+
     const deleteIndex = this.regionList.indexOf(region)
     if (deleteIndex >= 0) {
       this.regionList = [
@@ -288,7 +304,7 @@ export class RegionEditorController {
   }
 
   moveRegion(count: number) {
-    if (this.regionList.length == 0) {
+    if (!this.regionList || this.regionList.length == 0) {
       return;
     }
 
@@ -329,7 +345,8 @@ export class RegionEditorController {
     editingRectangle.right = x;
     editingRectangle.top = y;
     editingRectangle.bottom = y;
-    return new Region(-1, this.category.id, this.label, editingRectangle)
+    const categoryId = this.category ? this.category.id : 0;
+    return new Region(-1, categoryId, this.label, editingRectangle)
   }
 
   shrink(key: string, dist: number): boolean {
@@ -380,7 +397,7 @@ export class RegionEditorController {
   }
 
   deform(left: number, top: number, right: number, bottom: number): boolean {
-    if (!this.selectedRegion) {
+    if (!this.regionList || !this.selectedRegion) {
       return false;
     }
 
@@ -430,6 +447,10 @@ export class RegionEditorController {
 
   changeRegionLabel(region: Region, label: number) {
     this.label = label;
+
+    if (!this.regionList) {
+      return false;
+    }
 
     const labelRegionIndex = this.regionList.indexOf(region);
     if (labelRegionIndex < 0) {

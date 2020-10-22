@@ -6,6 +6,7 @@ import { Category } from '../../entities/Category';
 import { Region } from '../../entities/Region';
 
 const DEFAULT_LABEL = 0;
+const DEFAULT_MARGIN = 16;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -32,15 +33,15 @@ type Props = {
 }
 
 export function RegionEditor(props: Props) {
+    const classes = useStyles();
+
     const [cacheImage, setImage] = useState<HTMLImageElement | null>(null);
     const regionEditorControllerRef = useRef<RegionEditorController | null>(null);
-
-    const classes = useStyles();
 
     const canvasContainer = useRef<HTMLDivElement>(null);
     const canvas = useRef<HTMLCanvasElement>(null);
 
-    // add/remove eventListeners
+    // add/remove resize listeners
     useEffect(() => {
         const resizeEvent = (event) => {
             if (!canvas.current) {
@@ -53,7 +54,7 @@ export function RegionEditor(props: Props) {
             if (cacheImage && regionEditorControllerRef.current) {
                 canvas.current.width = canvasContainer.current.clientWidth;
                 canvas.current.height = canvasContainer.current.clientHeight;
-                regionEditorControllerRef.current.calcMargin(16);
+                regionEditorControllerRef.current.calcMargin(DEFAULT_MARGIN);
                 regionEditorControllerRef.current.redraw();
             }
         };
@@ -65,6 +66,7 @@ export function RegionEditor(props: Props) {
         }
     });
 
+    // add/remove mouse and key event listeners
     useEffect(() => {
         if (canvas.current) {
             const regionEditorController = new RegionEditorController(
@@ -99,6 +101,7 @@ export function RegionEditor(props: Props) {
 
     useEffect(() => {
         if (!props.file) {
+            // reset editor
             setImage(null);
             return;
         }
@@ -110,20 +113,28 @@ export function RegionEditor(props: Props) {
     }, [props.file]);
 
     useEffect(() => {
-        if (!canvas.current || !props.selectedCategory || !props.regionList) {
-            return;
-        }
-
         if (regionEditorControllerRef.current) {
             regionEditorControllerRef.current.image = cacheImage;
-            regionEditorControllerRef.current.calcMargin(16);
-
+            regionEditorControllerRef.current.calcMargin(DEFAULT_MARGIN);
             regionEditorControllerRef.current.category = props.selectedCategory;
             regionEditorControllerRef.current.label = DEFAULT_LABEL;
             regionEditorControllerRef.current.regionList = props.regionList;
             regionEditorControllerRef.current.redraw();
         }
-    }, [cacheImage, props.regionList]);
+    }, [cacheImage]);
+
+    useEffect(() => {
+        if (!props.regionList || !props.selectedCategory) {
+            return;
+        }
+
+        if (regionEditorControllerRef.current) {
+            regionEditorControllerRef.current.category = props.selectedCategory;
+            regionEditorControllerRef.current.label = DEFAULT_LABEL;
+            regionEditorControllerRef.current.regionList = props.regionList;
+            regionEditorControllerRef.current.redraw();
+        }
+    }, [props.regionList]);
 
     useEffect(() => {
         if (!canvas.current) {
