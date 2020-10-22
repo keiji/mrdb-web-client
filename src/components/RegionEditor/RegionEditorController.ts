@@ -429,6 +429,8 @@ export class RegionEditorController {
   }
 
   changeRegionLabel(region: Region, label: number) {
+    this.label = label;
+
     const labelRegionIndex = this.regionList.indexOf(region);
     if (labelRegionIndex < 0) {
       return false;
