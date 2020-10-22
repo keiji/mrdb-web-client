@@ -5,6 +5,8 @@ import * as manipulateImage from "../../manipulateImage";
 import { Category } from '../../entities/Category';
 import { Region } from '../../entities/Region';
 
+const DEFAULT_LABEL = 0;
+
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         height: `100%`,
@@ -117,6 +119,7 @@ export function RegionEditor(props: Props) {
             regionEditorControllerRef.current.calcMargin(16);
 
             regionEditorControllerRef.current.category = props.selectedCategory;
+            regionEditorControllerRef.current.label = DEFAULT_LABEL;
             regionEditorControllerRef.current.regionList = props.regionList;
             regionEditorControllerRef.current.redraw();
         }
