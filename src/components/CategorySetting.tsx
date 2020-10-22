@@ -21,9 +21,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 );
 
 export function CategorySetting(props: any) {
-    const categorySelect = useRef(null);
-
     const classes = useStyles();
+
+    const categorySelect = useRef(null);
 
     const getCategories = async () => {
         const categories = await apis.fetchCategories();
