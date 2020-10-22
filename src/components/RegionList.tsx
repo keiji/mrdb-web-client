@@ -17,6 +17,7 @@ import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
+        height: `100%`,
         overflowY: `scroll`,
         backgroundColor: theme.palette.background.paper,
     },
