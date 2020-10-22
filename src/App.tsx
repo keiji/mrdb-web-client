@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography, Tooltip } from '@material-ui/core';
