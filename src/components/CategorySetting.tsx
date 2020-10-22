@@ -20,7 +20,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }),
 );
 
-export function CategorySetting(props: any) {
+type Props = {
+    categoryList: Array<Category> | null | undefined,
+    selectedCategory: Category | null | undefined,
+    callback: Callback,
+}
+
+export function CategorySetting(props: Props) {
     const classes = useStyles();
 
     const categorySelect = useRef(null);
@@ -43,9 +49,8 @@ export function CategorySetting(props: any) {
 
     const categorySelected = (event: React.ChangeEvent<{ value: unknown }>) => {
         const value = event.target.value
-        if (typeof value == `number`) {
-            const categoryList: Array<Category> = props.categoryList;
-            const category: Array<Category> = categoryList.filter((category: Category) => { return category.id == value });
+        if (typeof value == `number` && props.categoryList) {
+            const category: Array<Category> = props.categoryList.filter((category: Category) => { return category.id == value });
             if (category) {
                 props.callback.onCategorySelected(category[0]);
                 getLabels(category[0]);
@@ -72,8 +77,8 @@ export function CategorySetting(props: any) {
     return (
         <div className={classes.root} >
             <FormControl className={classes.formControl}>
-            <InputLabel id="demo-simple-select-label">Category</InputLabel>
-            <Select
+                <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select
                     value={selectedCategoryValue()}
                     onChange={categorySelected}
                     className={classes.selectEmpty}
