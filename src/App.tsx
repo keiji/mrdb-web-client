@@ -90,7 +90,7 @@ function App() {
   const [imageListShown, setImageListShown] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>();
 
-  const [selectedFile, setFile] = useState<File>();
+  const [selectedFile, setFile] = useState<File | null>();
 
   const agreementDate = localStorage.getItem(KEY_AGREEMENT);
   const [agreementDialogShown, showAgreementDialog] = useState(agreementDate ? !(agreementDate === LATEST_AGREEMENT_DATE) : true);
@@ -138,6 +138,15 @@ function App() {
   const callback = new (class implements Callback {
     onFileListUpdated(fileList: File[]): void {
       setFileList(fileList);
+
+      if (!selectedFile) {
+        return;
+      }
+
+      // The selected file is removed from list.
+      if (fileList.indexOf(selectedFile) == -1) {
+        setFile(null);
+      }
     }
 
     onFileSelected(file: File) {
@@ -198,9 +207,9 @@ function App() {
   const agreementDialog = () => {
     const handleAgree = () => {
       setOnlineMode(true);
-        localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
+      localStorage.setItem(KEY_AGREEMENT, LATEST_AGREEMENT_DATE);
       showAgreementDialog(false);
-      }
+    }
     const handleDisagree = () => {
       setOnlineMode(false);
       showAgreementDialog(false);

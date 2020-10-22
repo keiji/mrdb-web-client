@@ -448,21 +448,22 @@ export class RegionEditorController {
     this.selectedRegion = labelRegion;
 
     this.callback.onChangedLabel(labelRegion, this.regionList);
+    this.callback.onSelectedRegion(this.selectedRegion);
 
     return true;
   }
 
   redraw() {
-    if (!this.image) {
-      return;
-    }
-
     const ctx = this.canvas.getContext("2d");
     if (ctx === null) {
       return;
     }
 
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    if (!this.image) {
+      return;
+    }
 
     ctx.drawImage(
       this.image,

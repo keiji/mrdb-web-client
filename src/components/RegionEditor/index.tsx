@@ -97,6 +97,7 @@ export function RegionEditor(props: Props) {
 
     useEffect(() => {
         if (!props.file) {
+            setImage(null);
             return;
         }
 

@@ -236,6 +236,7 @@ export function RegionEditorContainer(props: Props) {
     useEffect(() => {
         if (!props.selectedFile) {
             init();
+            setEditingFile(props.selectedFile);
             return;
         }
 
@@ -265,14 +266,12 @@ export function RegionEditorContainer(props: Props) {
     }, [props.onlineMode]);
 
     useEffect(() => {
-        if (!editingFile) {
-            return;
-        }
-
         idempotencyKey.current = uuidv4();
         clearEditHistory();
-        getRegions();
 
+        if (editingFile) {
+            getRegions();
+        }
     }, [editingFile, editingCategory]);
 
     useEffect(() => {
