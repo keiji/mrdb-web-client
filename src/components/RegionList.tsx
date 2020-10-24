@@ -1,11 +1,12 @@
+import React from 'react';
+
 import {
     Box, createStyles, IconButton, makeStyles, Paper,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Theme
 } from '@material-ui/core';
-import React, { } from 'react';
 
-import {CategorySetting, Callback as CategorySettingCallback} from './CategorySetting';
+import { CategorySetting, Callback as CategorySettingCallback } from './CategorySetting';
 import { Category } from '../entities/Category';
 import { Region } from '../entities/Region';
 import { Label } from '../entities/Label';
@@ -26,6 +27,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }),
 );
+
+export interface Callback {
+    onChangeRegionList(regionList: Array<Region>): void
+    onCategoriesUpdated(categoryList: Array<Category>): void
+    onRegionSelected(region: Region): void
+}
 
 type Props = {
     selectedCategory: Category | undefined,
@@ -76,7 +83,7 @@ export function RegionList(props: Props) {
         if (!props.regionList) {
             return;
         }
-        if (index == 0) {
+        if (index === 0) {
             return (
                 <TableCell>
                     <IconButton onClick={() => { moveOrderDown(index) }}>
@@ -84,7 +91,7 @@ export function RegionList(props: Props) {
                     </IconButton>
                 </TableCell>
             );
-        } else if (index == props.regionList.length - 1) {
+        } else if (index === (props.regionList.length - 1)) {
             return (
                 <TableCell>
                     <IconButton onClick={() => { moveOrderUp(index) }}>
@@ -107,7 +114,7 @@ export function RegionList(props: Props) {
     }
 
     const selectedOrNot = (region: Region) => {
-        if (props.selectedRegion == region) {
+        if (props.selectedRegion === region) {
             return (<TableCell><RadioButtonCheckedIcon /></TableCell>);
         }
         return (<TableCell><RadioButtonUncheckedIcon /></TableCell>);
@@ -122,7 +129,7 @@ export function RegionList(props: Props) {
         if (!props.labelList) {
             return (<TableCell>{labelValue}</TableCell>);
         }
-        const label = props.labelList.filter((label: Label) => { return label.label == labelValue })[0];
+        const label = props.labelList.filter((label: Label) => { return label.label === labelValue })[0];
         let labelName: string
         if (label) {
             labelName = label.name;
@@ -134,7 +141,7 @@ export function RegionList(props: Props) {
     }
 
     const showTable = () => {
-        if (!props.regionList || props.regionList.length == 0) {
+        if (!props.regionList || props.regionList.length === 0) {
             return (<span></span>);
         }
 
@@ -172,10 +179,4 @@ export function RegionList(props: Props) {
             {showTable()}
         </Box>
     );
-}
-
-export interface Callback {
-    onChangeRegionList(regionList: Array<Region>): void
-    onCategoriesUpdated(categoryList: Array<Category>): void
-    onRegionSelected(region: Region): void
 }
