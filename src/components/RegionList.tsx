@@ -2,7 +2,7 @@
 import React from 'react';
 
 import {
-    Box, Chip, createStyles, IconButton, makeStyles, Paper,
+    Box, createStyles, IconButton, makeStyles, Paper,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Theme
 } from '@material-ui/core';
