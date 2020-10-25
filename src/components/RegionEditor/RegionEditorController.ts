@@ -25,7 +25,7 @@ export class RegionEditorController {
 
   private mode: Mode = 'move';
 
-  regionList: Array<Region> | null | undefined = Array();
+  regionList: Region[] | null | undefined = [];
   image: HTMLImageElement | null = null;
 
   private canvas: HTMLCanvasElement
@@ -46,7 +46,7 @@ export class RegionEditorController {
     onDeformRegion(deformedRegion: Region, regionList: Array<Region>) {
       // Do nothing
     }
-  });
+  })();
 
   private _focusedRegion: Region | null = null;
   set focusedRegion(region: Region | null) {
@@ -284,7 +284,7 @@ export class RegionEditorController {
   }
 
   addRegion(region: Region) {
-    const list = this.regionList ? this.regionList : Array();
+    const list = this.regionList ? this.regionList : [];
 
     this.regionList = [...list, region];
     this.callback.onAddedRegion(region, this.regionList)

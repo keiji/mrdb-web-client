@@ -153,13 +153,13 @@ function App() {
     onFileSelected(file: File) {
       setFile(file);
     }
-  });
+  })();
 
   const regionEditorContainerCallback = new (class implements RegionEditorContainerCallback {
     onTurnOnlineRequested(): void {
       showAgreementDialog(true);
     }
-  });
+  })();
 
   const toggleDrawer = () => {
     setImageListShown(!imageListShown);

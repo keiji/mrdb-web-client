@@ -71,6 +71,10 @@ export interface State extends SnackbarOrigin {
     open: boolean;
 }
 
+export interface Callback {
+    onTurnOnlineRequested(): void
+}
+
 type Props = {
     onlineMode: boolean,
     selectedFile: File | null | undefined,
@@ -128,27 +132,27 @@ export function RegionEditorContainer(props: Props) {
     const init = () => {
         setDirty(false);
         setHashes({});
-        setRegionList(Array());
-        setHistoryList(Array());
+        setRegionList([]);
+        setHistoryList([]);
     }
 
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
             setSelectedRegion(selectedRegion)
         }
-        onAddedRegion(addedRegion: Region, newRegionList: Array<Region>) {
+        onAddedRegion(addedRegion: Region, newRegionList: Region[]) {
             addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
-        onDeletedRegion(deletedRegion: Region, newRegionList: Array<Region>) {
+        onDeletedRegion(deletedRegion: Region, newRegionList: Region[]) {
             addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
-        onChangedLabel(changedRegion: Region, newRegionList: Array<Region>) {
+        onChangedLabel(changedRegion: Region, newRegionList: Region[]) {
             addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
-        onDeformRegion(deformedRegion: Region, newRegionList: Array<Region>) {
+        onDeformRegion(deformedRegion: Region, newRegionList: Region[]) {
             addEditHistory(selectedRegionRef.current, regionListRef.current);
             setRegionList(newRegionList);
         }
@@ -284,7 +288,7 @@ export function RegionEditorContainer(props: Props) {
     }, [historyListState]);
 
     const clearEditHistory = () => {
-        setHistoryList(Array());
+        setHistoryList([]);
     }
 
     const restoreEditHistory = () => {
@@ -545,14 +549,14 @@ export function RegionEditorContainer(props: Props) {
                 saveRegions();
             }
 
-            setRegionList(Array());
+            setRegionList([]);
             setShowSaveDialog(false);
             setEditingFile(props.selectedFile);
             setEditingCategory(selectedCategory);
         }
 
         const handleDiscard = () => {
-            setRegionList(Array());
+            setRegionList([]);
 
             setShowSaveDialog(false);
             setEditingFile(props.selectedFile);
@@ -651,8 +655,4 @@ export function RegionEditorContainer(props: Props) {
 
         </React.Fragment>
     );
-}
-
-export interface Callback {
-    onTurnOnlineRequested(): void
 }
