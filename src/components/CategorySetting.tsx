@@ -39,17 +39,17 @@ export function CategorySetting(props: Props) {
 
     const categorySelect = useRef(null);
 
+    const getLabels = async (category: Category) => {
+        const labels = await apis.fetchLabels(category.id);
+        props.callback.onLabelsUpdated(labels);
+    };
+
     const getCategories = async () => {
         const categories = await apis.fetchCategories();
         props.callback.onCategoriesUpdated(categories);
         props.callback.onCategorySelected(categories[0]);
         getLabels(categories[0]);
-    }
-
-    const getLabels = async (category: Category) => {
-        const labels = await apis.fetchLabels(category.id);
-        props.callback.onLabelsUpdated(labels);
-    }
+    };
 
     useEffect(() => {
         getCategories();
