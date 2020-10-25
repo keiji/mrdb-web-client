@@ -49,8 +49,8 @@ export function CategorySetting(props: Props) {
 
     const categorySelected = (event: React.ChangeEvent<{ value: unknown }>) => {
         const value = event.target.value
-        if (typeof value == `number` && props.categoryList) {
-            const category: Array<Category> = props.categoryList.filter((category: Category) => { return category.id == value });
+        if (typeof value === `number` && props.categoryList) {
+            const category: Array<Category> = props.categoryList.filter((category: Category) => { return category.id === value });
             if (category) {
                 props.callback.onCategorySelected(category[0]);
                 getLabels(category[0]);

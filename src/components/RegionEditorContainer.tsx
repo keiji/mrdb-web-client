@@ -222,7 +222,7 @@ export function RegionEditorContainer(props: Props) {
         const onKeyDownListener = (event) => {
             event.preventDefault();
 
-            if (event.key == 'z' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
                 restoreEditHistory();
             }
         }
@@ -286,7 +286,7 @@ export function RegionEditorContainer(props: Props) {
     }
 
     const restoreEditHistory = () => {
-        if (historyListState.length == 0) {
+        if (historyListState.length === 0) {
             return;
         }
 
@@ -387,7 +387,7 @@ export function RegionEditorContainer(props: Props) {
             if (!historyListState) {
                 return (<span></span>);
             }
-            if (historyListState.length == 0) {
+            if (historyListState.length === 0) {
                 return (<span></span>);
             }
 
@@ -489,7 +489,7 @@ export function RegionEditorContainer(props: Props) {
             }
 
             const showExportMenu = () => {
-                const disabled = (!regionListRef.current || regionListRef.current.length == 0);
+                const disabled = (!regionListRef.current || regionListRef.current.length === 0);
                 if (disabled) {
                     return (<MenuItem disabled onClick={handleExport}>Export</MenuItem>);
                 }

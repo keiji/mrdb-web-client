@@ -144,7 +144,7 @@ function App() {
       }
 
       // The selected file is removed from list.
-      if (fileList.indexOf(selectedFile) == -1) {
+      if (fileList.indexOf(selectedFile) === -1) {
         setFile(null);
       }
     }
@@ -198,7 +198,7 @@ function App() {
   }
 
   const onKeyDownListener = (event) => {
-    if (event.key == ' ') {
+    if (event.key === ' ') {
       event.preventDefault();
       toggleDrawer();
     }
@@ -257,7 +257,7 @@ function App() {
     );
   }
   const showButtons = () => {
-    if (!fileList || fileList.length == 0) {
+    if (!fileList || fileList.length === 0) {
       return (<Box></Box>);
     }
     return (

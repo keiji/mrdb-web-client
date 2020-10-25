@@ -208,7 +208,7 @@ export class RegionEditorController {
 
   onKeyDownListener = (event) => {
 
-    if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' || event.key == 'ArrowUp' || event.key == 'ArrowDown') {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
 
       const dist = TICK * (event.shiftKey ? 0.1 : 1.0);
@@ -221,7 +221,7 @@ export class RegionEditorController {
         this.move(event.key, dist);
       }
 
-    } else if (event.key == 'Delete' || event.key == 'Clear' || event.key == 'Backspace' || event.key == 'd') {
+    } else if (event.key === 'Delete' || event.key === 'Clear' || event.key === 'Backspace' || event.key === 'd') {
       event.preventDefault();
 
       if (!this.selectedRegion) {
@@ -237,11 +237,11 @@ export class RegionEditorController {
       }
       this.changeRegionLabel(this.selectedRegion, parseInt(event.key));
 
-    } else if (event.key == 'Escape') {
+    } else if (event.key==='Escape') {
       event.preventDefault();
 
       this.editingRegion = null;
-    } else if (event.key == 'Enter') {
+    } else if (event.key === 'Enter') {
       event.preventDefault();
 
       if (event.shiftKey) {
@@ -249,10 +249,10 @@ export class RegionEditorController {
       } else {
         this.selectNextRegion();
       }
-    } else if (event.key == 'Meta') {
+    } else if (event.key === 'Meta') {
       event.preventDefault();
       this.mode = 'expand';
-    } else if (event.key == 'Alt') {
+    } else if (event.key === 'Alt') {
       event.preventDefault();
       this.mode = 'shrink';
     } else {
@@ -265,9 +265,9 @@ export class RegionEditorController {
   onKeyUpListener = (event) => {
     event.preventDefault();
 
-    if (event.key == 'Meta' && !event.altKey) {
+    if (event.key === 'Meta' && !event.altKey) {
       this.mode = 'move';
-    } else if (event.key == 'Alt' && !event.metaKey) {
+    } else if (event.key === 'Alt' && !event.metaKey) {
       this.mode = 'move';
     }
 
@@ -303,7 +303,7 @@ export class RegionEditorController {
   }
 
   moveRegion(count: number) {
-    if (!this.regionList || this.regionList.length == 0) {
+    if (!this.regionList || this.regionList.length === 0) {
       return;
     }
 
@@ -496,10 +496,10 @@ export class RegionEditorController {
     }
 
     this.regionList.forEach((region, index) => {
-      if (region == this.selectedRegion) {
+      if (region === this.selectedRegion) {
         ctx.strokeStyle = "#00FF00";
         this.drawMarkers(region, ctx);
-      } else if (region == this.focusedRegion) {
+      } else if (region === this.focusedRegion) {
         ctx.strokeStyle = "#0000FF";
       } else {
         ctx.strokeStyle = "#666666";

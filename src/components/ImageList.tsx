@@ -161,7 +161,7 @@ export function ImageList(props: Props) {
                     event.preventDefault();
 
                     const index = imageFiles.indexOf(file);
-                    if (index == -1) {
+                    if (index === -1) {
                         return;
                     }
 
@@ -176,7 +176,7 @@ export function ImageList(props: Props) {
                 if (typeof image === 'string') {
                     return createPreviewImage(
                         image, classes,
-                        (file == props.selectedFile),
+                        (file === props.selectedFile),
                         onSelect, onDelete);
                 }
             })
