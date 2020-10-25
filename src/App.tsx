@@ -174,7 +174,7 @@ function App() {
       const imageIds = await apis.fetchHash(f);
       result[f.name] = {
         "image_ids": imageIds,
-        "url": apis.fetchPageRegionsUrl(imageIds, null)
+        "url": apis.fetchPageRegionsUrl(imageIds, null, true)
       };
     }
     return result;

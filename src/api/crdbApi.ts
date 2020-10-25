@@ -56,16 +56,20 @@ export async function fetchLabels(categoryId: number) {
   return labels;
 }
 
-export function fetchPageRegionsUrl(imageIds: {}, category: Category | null | undefined) {
+export function fetchPageRegionsUrl(imageIds: {}, category: Category | null | undefined, published: boolean) {
   let url = BASE_API_ENDPOINT + "/page/" + imageIds['dhash8'];
-  if (category) {
-    url += `/?category_id=${category.id}`
+  if (category && published) {
+    url += `/?category_id=${category.id}&published=true`;
+  } else if (category) {
+    url += `/?category_id=${category.id}`;
+  } else if (published) {
+    url += `/?published=true`;
   }
   return url;
 }
 
 export async function fetchPageRegions(imageIds: {}, category: Category | undefined) {
-  const response = await fetch(fetchPageRegionsUrl(imageIds, category))
+  const response = await fetch(fetchPageRegionsUrl(imageIds, category, false))
     .then(handleErrors);
   const jsonObj = await response.json();
 
