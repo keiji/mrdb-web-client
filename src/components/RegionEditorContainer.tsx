@@ -129,13 +129,6 @@ export function RegionEditorContainer(props: Props) {
     });
     const { vertical, horizontal, open } = state;
 
-    const init = () => {
-        setDirty(false);
-        setHashes({});
-        setRegionList([]);
-        setHistoryList([]);
-    }
-
     const regionEditorCallback = new (class implements RegionEditorCallback {
         onSelectedRegion(selectedRegion: Region | null) {
             setSelectedRegion(selectedRegion)
@@ -241,6 +234,13 @@ export function RegionEditorContainer(props: Props) {
     });
 
     useEffect(() => {
+        const init = () => {
+            setDirty(false);
+            setHashes({});
+            setRegionList([]);
+            setHistoryList([]);
+        }
+
         if (!props.selectedFile) {
             init();
             setEditingFile(props.selectedFile);

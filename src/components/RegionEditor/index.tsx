@@ -70,15 +70,16 @@ export function RegionEditor(props: Props) {
 
     // add/remove mouse and key event listeners
     useEffect(() => {
-        if (canvas.current) {
+        const canvasRef = canvas.current;
+        if (canvasRef) {
             const regionEditorController = new RegionEditorController(
-                canvas.current,
+                canvasRef,
                 props.callback
             );
 
-            canvas.current.addEventListener("mousedown", regionEditorController.onMouseDownListener);
-            canvas.current.addEventListener("mousemove", regionEditorController.onMouseMoveListener);
-            canvas.current.addEventListener("mouseup", regionEditorController.onMouseUpListener);
+            canvasRef.addEventListener("mousedown", regionEditorController.onMouseDownListener);
+            canvasRef.addEventListener("mousemove", regionEditorController.onMouseMoveListener);
+            canvasRef.addEventListener("mouseup", regionEditorController.onMouseUpListener);
 
             // https://qiita.com/jay-es/items/cd30c73989659374698a
             document.addEventListener("keydown", regionEditorController.onKeyDownListener);
@@ -88,12 +89,14 @@ export function RegionEditor(props: Props) {
         }
 
         return () => {
-            if (canvas.current && regionEditorControllerRef.current) {
+            if (canvasRef && regionEditorControllerRef.current) {
                 const regionEditorController = regionEditorControllerRef.current;
-                canvas.current.removeEventListener("mousedown", regionEditorController.onMouseDownListener);
-                canvas.current.removeEventListener("mousemove", regionEditorController.onMouseMoveListener);
-                canvas.current.removeEventListener("mouseup", regionEditorController.onMouseUpListener);
-
+                canvasRef.removeEventListener("mousedown", regionEditorController.onMouseDownListener);
+                canvasRef.removeEventListener("mousemove", regionEditorController.onMouseMoveListener);
+                canvasRef.removeEventListener("mouseup", regionEditorController.onMouseUpListener);
+            }
+            if (regionEditorControllerRef.current) {
+                const regionEditorController = regionEditorControllerRef.current;
                 document.removeEventListener("keydown", regionEditorController.onKeyDownListener);
                 document.removeEventListener("keyup", regionEditorController.onKeyUpListener);
             }
@@ -123,20 +126,7 @@ export function RegionEditor(props: Props) {
             regionEditorControllerRef.current.regionList = props.regionList;
             regionEditorControllerRef.current.redraw();
         }
-    }, [cacheImage]);
-
-    useEffect(() => {
-        if (!props.regionList || !props.selectedCategory) {
-            return;
-        }
-
-        if (regionEditorControllerRef.current) {
-            regionEditorControllerRef.current.category = props.selectedCategory;
-            regionEditorControllerRef.current.label = DEFAULT_LABEL;
-            regionEditorControllerRef.current.regionList = props.regionList;
-            regionEditorControllerRef.current.redraw();
-        }
-    }, [props.regionList]);
+    }, [cacheImage, props.regionList, props.selectedCategory]);
 
     useEffect(() => {
         if (!canvas.current) {
