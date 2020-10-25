@@ -2,8 +2,12 @@ import { Category } from '../../entities/Category';
 import { Rectangle } from '../../entities/Rectangle';
 import { Region } from '../../entities/Region';
 
+import * as Color from '../../color';
+
 const TICK = 0.01;
 const NEIGHBOR_THRESHOLD = 0.005;
+
+const SELECTED_REGION_OUTLINE_DISTANCE = 0.004;
 
 const MARKER_LENGTH = 8;
 
@@ -505,20 +509,30 @@ export class RegionEditorController {
     }
 
     this.regionList.forEach((region, index) => {
-      if (region === this.selectedRegion) {
-        ctx.strokeStyle = "#00FF00";
-        this.drawMarkers(region, ctx);
-      } else if (region === this.focusedRegion) {
-        ctx.strokeStyle = "#0000FF";
+      if (region === this.focusedRegion) {
+        ctx.strokeStyle = `${Color.REGION_LABEL_COLOR[region.label]}`;
       } else {
-        ctx.strokeStyle = "#666666";
+        ctx.strokeStyle = `${Color.REGION_LABEL_COLOR[region.label]}${Color.NOT_SELECTED_REGION_ALPHA}`;
       }
 
       this.drawRegion(region, ctx);
+
+      if (region === this.selectedRegion) {
+        ctx.strokeStyle = `${Color.SELECTED_REGION_COLOR}`;
+
+        const selectedRegion = region.deepCopy();
+        selectedRegion.rectangle.left -= SELECTED_REGION_OUTLINE_DISTANCE;
+        selectedRegion.rectangle.top -= SELECTED_REGION_OUTLINE_DISTANCE;
+        selectedRegion.rectangle.right += SELECTED_REGION_OUTLINE_DISTANCE;
+        selectedRegion.rectangle.bottom += SELECTED_REGION_OUTLINE_DISTANCE;
+
+        this.drawRegion(selectedRegion, ctx);
+        this.drawMarkers(selectedRegion, ctx);
+      }
     })
 
     if (this.editingRegion) {
-      ctx.strokeStyle = "#FF0000";
+      ctx.strokeStyle = `${Color.EDITING_REGION_COLOR}`;
       this.drawRegion(this.editingRegion, ctx);
     }
   }
@@ -568,8 +582,6 @@ export class RegionEditorController {
   }
 
   drawMarkers(region: Region, ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "#00FF00";
-
     switch (this.mode) {
       case "move": {
         return;

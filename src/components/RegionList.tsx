@@ -2,7 +2,7 @@
 import React from 'react';
 
 import {
-    Box, createStyles, IconButton, makeStyles, Paper,
+    Box, Chip, createStyles, IconButton, makeStyles, Paper,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Theme
 } from '@material-ui/core';
@@ -16,6 +16,7 @@ import MoveOrderUpIcon from '@material-ui/icons/ExpandLess';
 import MoveOrderDownIcon from '@material-ui/icons/ExpandMore';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@material-ui/icons/RadioButtonChecked';
+import { REGION_LABEL_COLOR } from '../color';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     root: {
@@ -26,6 +27,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     table: {
         minWidth: `100%`,
     },
+    labelIndicator: {
+        display: 'inline-block',
+        width: `16px`,
+        height: `16px`,
+        marginRight: `4px`,
+    }
 }),
 );
 
@@ -138,7 +145,13 @@ export function RegionList(props: Props) {
             labelName = 'Unknown';
         }
 
-        return (<TableCell>{labelValue}: {labelName}</TableCell>);
+        const chipLabel = `${labelValue}: ${labelName}`;
+        return (
+            <TableCell>
+                <span className={classes.labelIndicator} style={{ background: REGION_LABEL_COLOR[labelValue] }} />
+                {chipLabel}
+            </TableCell>
+        );
     }
 
     const showTable = () => {
