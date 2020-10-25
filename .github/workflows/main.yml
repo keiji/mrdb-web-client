@@ -16,6 +16,8 @@ jobs:
       - name: Build
         run: |
           npm run build --loglevel verbose
+        env:
+          PUBLIC_URL: https://keiji.github.io/mrdb-web-client/
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
