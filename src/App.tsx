@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import * as React from 'react';
+import { useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { Drawer, IconButton, CssBaseline, Paper, Box, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, Button, Typography, Tooltip } from '@material-ui/core';
@@ -184,7 +185,7 @@ function App() {
 
     const hashList = await getHashList(fileList)
 
-    const blob = new Blob([JSON.stringify(hashList, null, '  ')], { type: 'application\/json' });
+    const blob = new Blob([JSON.stringify(hashList, null, '  ')], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");

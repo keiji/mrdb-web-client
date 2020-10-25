@@ -9,6 +9,15 @@ const MARKER_LENGTH = 8;
 
 type Mode = 'move' | 'expand' | 'shrink';
 
+export interface Callback {
+  onSelectedRegion(region: Region | null);
+  onChangedLabel(region: Region, regionList: Array<Region>);
+
+  onAddedRegion(addedRegion: Region, regionList: Array<Region>);
+  onDeletedRegion(deletedRegion: Region, regionList: Array<Region>);
+  onDeformRegion(deformedRegion: Region, regionList: Array<Region>);
+}
+
 export class RegionEditorController {
 
   category: Category | null | undefined = new Category(0, 'Unknown', 0);
@@ -237,7 +246,7 @@ export class RegionEditorController {
       }
       this.changeRegionLabel(this.selectedRegion, parseInt(event.key));
 
-    } else if (event.key==='Escape') {
+    } else if (event.key === 'Escape') {
       event.preventDefault();
 
       this.editingRegion = null;
@@ -586,13 +595,4 @@ export class RegionEditorController {
       rect.height() * this.imageHeight
     );
   }
-}
-
-export interface Callback {
-  onSelectedRegion(region: Region | null);
-  onChangedLabel(region: Region, regionList: Array<Region>);
-
-  onAddedRegion(addedRegion: Region, regionList: Array<Region>);
-  onDeletedRegion(deletedRegion: Region, regionList: Array<Region>);
-  onDeformRegion(deformedRegion: Region, regionList: Array<Region>);
 }

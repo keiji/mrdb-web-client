@@ -1,5 +1,7 @@
+import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
-import React, { useEffect, useRef, useState } from 'react';
+
 import { RegionEditorController, Callback as RegionEditorCallback } from './RegionEditorController';
 import * as manipulateImage from "../../utils/manipulateImage";
 import { Category } from '../../entities/Category';

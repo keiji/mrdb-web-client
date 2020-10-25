@@ -1,5 +1,5 @@
-import React, { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
-import { RegionList } from './RegionList';
+import * as React from 'react';
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import {
     AppBar, Button, Container, createStyles,
@@ -7,6 +7,7 @@ import {
     Grid, IconButton, makeStyles, Menu, MenuItem, Snackbar, SnackbarOrigin,
     Theme, Toolbar, Tooltip, Typography
 } from '@material-ui/core';
+
 import { Callback as RegionEditorCallback } from './RegionEditor/RegionEditorController';
 import { Callback as RegionListCallback } from './RegionList';
 import { Callback as CategorySettingCallback } from './CategorySetting';
@@ -16,6 +17,7 @@ import { convertPointsToRegions, convertRegionsToPathRegions, Region } from '../
 import { Label } from '../entities/Label';
 import { Category } from '../entities/Category';
 import { RegionEditor } from './RegionEditor/index';
+import { RegionList } from './RegionList';
 
 import UndoIcon from '@material-ui/icons/Undo';
 import BackupIcon from '@material-ui/icons/Backup';
@@ -354,7 +356,7 @@ export function RegionEditorContainer(props: Props) {
             }
         }
 
-        const blob = new Blob([JSON.stringify(jsonObj, null, '  ')], { type: 'application\/json' });
+        const blob = new Blob([JSON.stringify(jsonObj, null, '  ')], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement("a");

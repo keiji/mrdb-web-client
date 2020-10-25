@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import * as React from 'react';
+import { useState, useRef } from 'react';
 
 import { Box, Container, GridList, IconButton } from '@material-ui/core';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -70,6 +71,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
 }),
 );
+
+export interface Callback {
+    onFileSelected(file: File): void
+    onFileListUpdated(fileList: Array<File>): void
+}
 
 type Props = {
     selectedFile: File | null | undefined,
@@ -207,9 +213,4 @@ export function ImageList(props: Props) {
             </GridList>
         </div>
     );
-}
-
-export interface Callback {
-    onFileSelected(file: File): void
-    onFileListUpdated(fileList: Array<File>): void
 }
