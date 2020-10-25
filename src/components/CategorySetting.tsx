@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-use-before-define
 import * as React from 'react';
+
 import { useEffect, useRef } from 'react';
 import { createStyles, FormControl, InputLabel, makeStyles, MenuItem, Select, Theme } from '@material-ui/core';
 

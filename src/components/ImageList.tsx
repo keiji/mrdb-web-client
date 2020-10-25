@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-use-before-define
 import * as React from 'react';
+
 import { useState, useRef } from 'react';
 
 import { Box, Container, GridList, IconButton } from '@material-ui/core';
