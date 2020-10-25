@@ -53,6 +53,8 @@ export function CategorySetting(props: Props) {
 
     useEffect(() => {
         getCategories();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [categorySelect]);
 
     const categorySelected = (event: React.ChangeEvent<{ value: unknown }>) => {

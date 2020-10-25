@@ -253,6 +253,8 @@ export function RegionEditorContainer(props: Props) {
         }
 
         setEditingFile(props.selectedFile);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.selectedFile]);
 
     useEffect(() => {
@@ -266,10 +268,14 @@ export function RegionEditorContainer(props: Props) {
         }
 
         setEditingCategory(selectedCategory);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCategory]);
 
     useEffect(() => {
         getRegions();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.onlineMode]);
 
     useEffect(() => {
@@ -279,6 +285,8 @@ export function RegionEditorContainer(props: Props) {
         if (editingFile) {
             getRegions();
         }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editingFile, editingCategory]);
 
     useEffect(() => {
