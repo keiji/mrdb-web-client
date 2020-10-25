@@ -185,6 +185,7 @@ export function ImageList(props: Props) {
                         (file === props.selectedFile),
                         onSelect, onDelete);
                 }
+                return image;
             })
         )
     }
