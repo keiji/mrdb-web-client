@@ -47,6 +47,11 @@ export class Rectangle {
         const t = Math.min(this.top, this.bottom);
         const r = Math.max(this.left, this.right);
         const b = Math.max(this.top, this.bottom);
+
+        this.left = l;
+        this.top = t;
+        this.right = r;
+        this.bottom = b;
     }
 
     toString() {
