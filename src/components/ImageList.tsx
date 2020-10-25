@@ -129,7 +129,7 @@ export function ImageList(props: Props) {
         fileReader.readAsDataURL(imageFiles[index]);
     };
 
-    const createPreviewImage = (image: string, classes, isSelected: boolean, onClick: (event: any) => void, onDelete: (event: any) => void) => {
+    const createPreviewImage = (image: string, imageAlt: string, classes, isSelected: boolean, onClick: (event: any) => void, onDelete: (event: any) => void) => {
         const imageBoxClassName = () => {
             if (isSelected) {
                 return (classes.imageBoxContainerSelected + ` ` + classes.imageBoxContainer);
@@ -140,7 +140,7 @@ export function ImageList(props: Props) {
         return (
             <Box className={imageBoxClassName()}>
                 <Container className={classes.imageContainer}>
-                    <img className={classes.image} src={image} />
+                    <img className={classes.image} src={image} alt={imageAlt}/>
                 </Container>
                 <Box className={classes.tapContainer} >
                     <Box className={classes.selectionBox} onClick={onClick} />
@@ -183,7 +183,8 @@ export function ImageList(props: Props) {
                 };
                 if (typeof image === 'string') {
                     return createPreviewImage(
-                        image, classes,
+                        image, file.name,
+                        classes,
                         (file === props.selectedFile),
                         onSelect, onDelete);
                 }
@@ -198,7 +199,7 @@ export function ImageList(props: Props) {
 
                 <Box className={classes.imageBoxContainer}>
                     <Box className={classes.imageContainer} onClick={showFileDialog}>
-                        <img className={classes.imagePlaceholder} src={add_photo_alternate_black} />
+                        <img className={classes.imagePlaceholder} src={add_photo_alternate_black} alt="add_image" />
                     </Box>
                 </Box>
 
