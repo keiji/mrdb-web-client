@@ -518,6 +518,7 @@ export class RegionEditorController {
       this.drawRegion(region, ctx);
 
       if (region === this.selectedRegion) {
+        ctx.fillStyle = `${Color.SELECTED_REGION_COLOR}`;
         ctx.strokeStyle = `${Color.SELECTED_REGION_COLOR}`;
 
         const selectedRegion = region.deepCopy();
