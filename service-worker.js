@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "https://keiji.github.io/mrdb-web-client/precache-manifest.4d43042d6a2d3e3b28a9610b0915f49b.js"
+  "https://keiji.github.io/mrdb-web-client/precache-manifest.1ea0e7bcc7133d54afcddcccfc3faefc.js"
 );
 
 self.addEventListener('message', (event) => {

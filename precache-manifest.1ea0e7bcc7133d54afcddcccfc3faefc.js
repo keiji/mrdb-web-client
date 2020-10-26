@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9c40ea3b13ed2bd20bd0d37427bf03dd",
+    "revision": "d997283107218653fa74a0a95ac9e93a",
     "url": "https://keiji.github.io/mrdb-web-client/index.html"
   },
   {
-    "revision": "f92085d408039787efb3",
+    "revision": "462fd4c53e0318bca648",
     "url": "https://keiji.github.io/mrdb-web-client/static/css/main.5ecd60fb.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://keiji.github.io/mrdb-web-client/static/js/2.f4638d45.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "f92085d408039787efb3",
-    "url": "https://keiji.github.io/mrdb-web-client/static/js/main.a081eba3.chunk.js"
+    "revision": "462fd4c53e0318bca648",
+    "url": "https://keiji.github.io/mrdb-web-client/static/js/main.17791d79.chunk.js"
   },
   {
     "revision": "87ba11022ec4da68b047",
