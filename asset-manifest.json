@@ -1,23 +1,21 @@
 {
   "files": {
-    "main.css": "https://keiji.github.io/mrdb-web-client/static/css/main.5ecd60fb.chunk.css",
-    "main.js": "https://keiji.github.io/mrdb-web-client/static/js/main.0ad14f27.chunk.js",
-    "main.js.map": "https://keiji.github.io/mrdb-web-client/static/js/main.0ad14f27.chunk.js.map",
-    "runtime-main.js": "https://keiji.github.io/mrdb-web-client/static/js/runtime-main.1e2f6442.js",
-    "runtime-main.js.map": "https://keiji.github.io/mrdb-web-client/static/js/runtime-main.1e2f6442.js.map",
-    "static/js/2.74c4c991.chunk.js": "https://keiji.github.io/mrdb-web-client/static/js/2.74c4c991.chunk.js",
-    "static/js/2.74c4c991.chunk.js.map": "https://keiji.github.io/mrdb-web-client/static/js/2.74c4c991.chunk.js.map",
+    "main.css": "https://keiji.github.io/mrdb-web-client/static/css/main.6dea0f05.chunk.css",
+    "main.js": "https://keiji.github.io/mrdb-web-client/static/js/main.02aaea6c.chunk.js",
+    "main.js.map": "https://keiji.github.io/mrdb-web-client/static/js/main.02aaea6c.chunk.js.map",
+    "runtime-main.js": "https://keiji.github.io/mrdb-web-client/static/js/runtime-main.466b2969.js",
+    "runtime-main.js.map": "https://keiji.github.io/mrdb-web-client/static/js/runtime-main.466b2969.js.map",
+    "static/js/2.8cfc2d57.chunk.js": "https://keiji.github.io/mrdb-web-client/static/js/2.8cfc2d57.chunk.js",
+    "static/js/2.8cfc2d57.chunk.js.map": "https://keiji.github.io/mrdb-web-client/static/js/2.8cfc2d57.chunk.js.map",
     "index.html": "https://keiji.github.io/mrdb-web-client/index.html",
-    "precache-manifest.6b35cf0bb4d3dfe9f02291170c406008.js": "https://keiji.github.io/mrdb-web-client/precache-manifest.6b35cf0bb4d3dfe9f02291170c406008.js",
-    "service-worker.js": "https://keiji.github.io/mrdb-web-client/service-worker.js",
-    "static/css/main.5ecd60fb.chunk.css.map": "https://keiji.github.io/mrdb-web-client/static/css/main.5ecd60fb.chunk.css.map",
-    "static/js/2.74c4c991.chunk.js.LICENSE.txt": "https://keiji.github.io/mrdb-web-client/static/js/2.74c4c991.chunk.js.LICENSE.txt",
-    "static/media/add_photo_alternate-black-48dp.svg": "https://keiji.github.io/mrdb-web-client/static/media/add_photo_alternate-black-48dp.51e18df8.svg"
+    "static/css/main.6dea0f05.chunk.css.map": "https://keiji.github.io/mrdb-web-client/static/css/main.6dea0f05.chunk.css.map",
+    "static/js/2.8cfc2d57.chunk.js.LICENSE.txt": "https://keiji.github.io/mrdb-web-client/static/js/2.8cfc2d57.chunk.js.LICENSE.txt",
+    "static/media/add_photo_alternate-black-48dp.3723a89d.svg": "https://keiji.github.io/mrdb-web-client/static/media/add_photo_alternate-black-48dp.3723a89d.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.1e2f6442.js",
-    "static/js/2.74c4c991.chunk.js",
-    "static/css/main.5ecd60fb.chunk.css",
-    "static/js/main.0ad14f27.chunk.js"
+    "static/js/runtime-main.466b2969.js",
+    "static/js/2.8cfc2d57.chunk.js",
+    "static/css/main.6dea0f05.chunk.css",
+    "static/js/main.02aaea6c.chunk.js"
   ]
 }
